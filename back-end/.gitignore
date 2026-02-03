@@ -1,0 +1,8 @@
+cache
+*.dll
+*.pdb
+*.nupkg
+back-end
+
+[Oo]bj/
+[Bb]in/
