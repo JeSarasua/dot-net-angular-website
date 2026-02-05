@@ -5,7 +5,20 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddScoped<ITodoRepository, MockTodoRepository>();
 
-builder.Services.AddControllers();
+builder
+    .Services.AddControllers(options =>
+    {
+        options.ReturnHttpNotAcceptable = true;
+    })
+    .AddXmlDataContractSerializerFormatters();
+
+// builder.Services.AddProblemDetails(options =>
+// {
+//     options.CustomizeProblemDetails = ctx =>
+//     {
+//         ctx.ProblemDetails.Extensions.Add("additionalInfo", "Additional info example");
+//     };
+// });
 
 builder.Services.AddEndpointsApiExplorer();
 
@@ -27,8 +40,13 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseRouting();
+
 app.UseAuthorization();
 
-app.MapControllers();
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapControllers();
+});
 
 app.Run();

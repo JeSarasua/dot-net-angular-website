@@ -1,13 +1,10 @@
 using System.Net.Mime;
 using back_end.Models;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace back_end
 {
-    [Route("api/[controller]")]
-    [Produces(MediaTypeNames.Application.Json)]
-    [Consumes(MediaTypeNames.Application.Json)]
+    [Route("api/todo")]
     [ApiController]
     public class TodoController : ControllerBase
     {
@@ -26,9 +23,9 @@ namespace back_end
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public IEnumerable<Todo> Get()
+        public ActionResult<IEnumerable<TodoDto>> GetTodos()
         {
-            return _TodoRepository.AllTodos;
+            return Ok(_TodoRepository.AllTodos);
         }
 
         // GET: api/<TodoController>
@@ -39,9 +36,14 @@ namespace back_end
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public Todo GetById(int id)
+        public ActionResult<TodoDto> GetById(int id)
         {
-            return _TodoRepository.GetTodoById(id);
+            Todo todo = _TodoRepository.GetTodoById(id);
+            if (todo == null)
+            {
+                return NotFound();
+            }
+            return Ok(todo);
         }
     }
 }
