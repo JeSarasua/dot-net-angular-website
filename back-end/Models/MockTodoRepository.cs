@@ -2,9 +2,8 @@ namespace back_end.Models;
 
 public class MockTodoRepository : ITodoRepository
 {
-    public IEnumerable<Todo> AllTodos =>
-        new List<Todo>
-        {
+    public IList<Todo> AllTodos { get; set; } = new List<Todo>
+    {
             new Todo
             {
                 Id = 1,
@@ -59,7 +58,7 @@ public class MockTodoRepository : ITodoRepository
                 DueDate = DateTimeOffset.UtcNow,
                 Status = TodoStatus.Completed,
             },
-        };
+    };
 
     public Todo? GetTodoById(int todoId)
     {
@@ -72,4 +71,55 @@ public class MockTodoRepository : ITodoRepository
         }
         return null;
     }
+
+    public void CreateTodo(TodoForCreationDto createTodo)
+    {
+        Todo newTodo = new Todo
+        {
+            // Fixme this could result in a bug if Id overlaps
+            Id = AllTodos.Count() + 1,
+            Name = createTodo.Name,
+            Description = createTodo.Description,
+            CreatedDate = DateTimeOffset.UtcNow,
+            DueDate = createTodo.DueDate,
+            Status = createTodo.Status  
+        };
+
+        // FIXME: Add validation
+
+        AllTodos.Add(newTodo);
+    }
+
+
+    public void UpdateTodoById(int todoId, TodoForUpdateDto updatedTodo)
+    {
+        for (int i = 0; i < AllTodos.Count(); i++)
+        {
+            if (AllTodos[i].Id == todoId)
+            {
+                var existingTodo = AllTodos[i];
+
+                existingTodo.Name = updatedTodo.Name;
+                existingTodo.Description = updatedTodo.Description;
+                existingTodo.DueDate = updatedTodo.DueDate;
+                existingTodo.Status = updatedTodo.Status;
+                return;
+            }
+        }
+    }
+
+        public void DeleteTodoById(int todoId)
+    {
+        for (int i = 0; i < AllTodos.Count(); i++)
+        {
+            if (AllTodos[i].Id == todoId)
+            {
+                var existingTodo = AllTodos[i];
+
+                AllTodos.Remove(existingTodo);
+                return;
+            }
+        }
+    }
+
 }

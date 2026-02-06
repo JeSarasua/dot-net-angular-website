@@ -3,14 +3,17 @@ using back_end.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddScoped<ITodoRepository, MockTodoRepository>();
+builder.Services.AddSingleton<ITodoRepository, MockTodoRepository>();
 
 builder
     .Services.AddControllers(options =>
     {
         options.ReturnHttpNotAcceptable = true;
     })
-    .AddXmlDataContractSerializerFormatters();
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.WriteIndented = true;
+    }); ;
 
 // builder.Services.AddProblemDetails(options =>
 // {
