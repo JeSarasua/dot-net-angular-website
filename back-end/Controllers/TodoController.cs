@@ -38,7 +38,7 @@ namespace back_end
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public ActionResult<TodoDto> GetById(int id)
         {
-            Todo todo = _TodoRepository.GetTodoById(id);
+            TodoDto todo = _TodoRepository.GetTodoById(id);
             if (todo == null)
             {
                 return NotFound();
@@ -70,7 +70,8 @@ namespace back_end
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public ActionResult<TodoDto> UpdateById(int id, TodoForUpdateDto updatedTodo)
         {
-            if (_TodoRepository.GetTodoById(id) == null) return NotFound();
+            if (_TodoRepository.GetTodoById(id) == null)
+                return NotFound();
 
             _TodoRepository.UpdateTodoById(id, updatedTodo);
             return NoContent();
@@ -86,7 +87,8 @@ namespace back_end
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public ActionResult<TodoDto> DeleteTodo(int id)
         {
-            if (_TodoRepository.GetTodoById(id) == null) return NotFound();
+            if (_TodoRepository.GetTodoById(id) == null)
+                return NotFound();
 
             _TodoRepository.DeleteTodoById(id);
             return NoContent();

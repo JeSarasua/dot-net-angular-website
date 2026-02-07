@@ -1,4 +1,5 @@
 using System.Reflection;
+using back_end.DbContexts;
 using back_end.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,7 +14,8 @@ builder
     .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.WriteIndented = true;
-    }); ;
+    });
+;
 
 // builder.Services.AddProblemDetails(options =>
 // {
@@ -31,6 +33,8 @@ builder.Services.AddSwaggerGen(options =>
     var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
     options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
 });
+
+builder.Services.AddDbContext<TodoContext>();
 
 var app = builder.Build();
 

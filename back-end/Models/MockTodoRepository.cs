@@ -2,9 +2,10 @@ namespace back_end.Models;
 
 public class MockTodoRepository : ITodoRepository
 {
-    public IList<Todo> AllTodos { get; set; } = new List<Todo>
-    {
-            new Todo
+    public IList<TodoDto> AllTodos { get; set; } =
+        new List<TodoDto>
+        {
+            new TodoDto
             {
                 Id = 1,
                 Name = "Clean the kitchen",
@@ -13,7 +14,7 @@ public class MockTodoRepository : ITodoRepository
                 DueDate = DateTimeOffset.UtcNow.AddDays(5),
                 Status = TodoStatus.ToDo,
             },
-            new Todo
+            new TodoDto
             {
                 Id = 2,
                 Name = "Review Pull Request",
@@ -22,7 +23,7 @@ public class MockTodoRepository : ITodoRepository
                 DueDate = DateTimeOffset.UtcNow.AddDays(1),
                 Status = TodoStatus.InProgress,
             },
-            new Todo
+            new TodoDto
             {
                 Id = 3,
                 Name = "Book Dentist Appointment",
@@ -31,7 +32,7 @@ public class MockTodoRepository : ITodoRepository
                 DueDate = DateTimeOffset.UtcNow.AddDays(14),
                 Status = TodoStatus.ToDo,
             },
-            new Todo
+            new TodoDto
             {
                 Id = 4,
                 Name = "Submit Monthly Report",
@@ -40,7 +41,7 @@ public class MockTodoRepository : ITodoRepository
                 DueDate = DateTimeOffset.UtcNow.AddDays(-1),
                 Status = TodoStatus.InProgress,
             },
-            new Todo
+            new TodoDto
             {
                 Id = 5,
                 Name = "Gym Session",
@@ -49,7 +50,7 @@ public class MockTodoRepository : ITodoRepository
                 DueDate = DateTimeOffset.UtcNow.AddHours(4),
                 Status = TodoStatus.ToDo,
             },
-            new Todo
+            new TodoDto
             {
                 Id = 6,
                 Name = "Make my bed",
@@ -58,9 +59,9 @@ public class MockTodoRepository : ITodoRepository
                 DueDate = DateTimeOffset.UtcNow,
                 Status = TodoStatus.Completed,
             },
-    };
+        };
 
-    public Todo? GetTodoById(int todoId)
+    public TodoDto? GetTodoById(int todoId)
     {
         foreach (var todo in AllTodos)
         {
@@ -74,7 +75,7 @@ public class MockTodoRepository : ITodoRepository
 
     public void CreateTodo(TodoForCreationDto createTodo)
     {
-        Todo newTodo = new Todo
+        TodoDto newTodo = new TodoDto
         {
             // Fixme this could result in a bug if Id overlaps
             Id = AllTodos.Count() + 1,
@@ -82,14 +83,13 @@ public class MockTodoRepository : ITodoRepository
             Description = createTodo.Description,
             CreatedDate = DateTimeOffset.UtcNow,
             DueDate = createTodo.DueDate,
-            Status = createTodo.Status  
+            Status = createTodo.Status
         };
 
         // FIXME: Add validation
 
         AllTodos.Add(newTodo);
     }
-
 
     public void UpdateTodoById(int todoId, TodoForUpdateDto updatedTodo)
     {
@@ -108,7 +108,7 @@ public class MockTodoRepository : ITodoRepository
         }
     }
 
-        public void DeleteTodoById(int todoId)
+    public void DeleteTodoById(int todoId)
     {
         for (int i = 0; i < AllTodos.Count(); i++)
         {
@@ -121,5 +121,4 @@ public class MockTodoRepository : ITodoRepository
             }
         }
     }
-
 }
