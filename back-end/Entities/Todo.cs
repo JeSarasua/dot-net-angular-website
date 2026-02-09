@@ -19,9 +19,4 @@ public class Todo
     public DateTimeOffset CreatedDate { get; set; }
     public DateTimeOffset DueDate { get; set; }
     public TodoStatus Status { get; set; }
-
-    public Todo(string name)
-    {
-        Name = name;
-    }
 }

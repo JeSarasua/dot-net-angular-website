@@ -1,6 +1,6 @@
 namespace back_end.Models;
 
-public class MockTodoRepository : ITodoRepository
+public class OLDMockTodoRepository : OLDITodoRepository
 {
     public IList<TodoDto> AllTodos { get; set; } =
         new List<TodoDto>
@@ -83,7 +83,7 @@ public class MockTodoRepository : ITodoRepository
             Description = createTodo.Description,
             CreatedDate = DateTimeOffset.UtcNow,
             DueDate = createTodo.DueDate,
-            Status = createTodo.Status
+            Status = createTodo.Status,
         };
 
         // FIXME: Add validation

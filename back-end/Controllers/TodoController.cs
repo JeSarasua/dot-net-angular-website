@@ -1,4 +1,5 @@
 using System.Net.Mime;
+using AutoMapper;
 using back_end.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,11 +10,13 @@ namespace back_end
     [ApiController]
     public class TodoController : ControllerBase
     {
-        private ITodoRepository _TodoRepository;
+        private ITodoRepository _todoRepository;
+        private readonly IMapper _mapper;
 
-        public TodoController(ITodoRepository TodoRepository)
+        public TodoController(ITodoRepository todoRepository, IMapper mapper)
         {
-            _TodoRepository = TodoRepository;
+            _todoRepository = todoRepository;
+            _mapper = mapper;
         }
 
         // GET: api/<TodoController>
@@ -23,9 +26,10 @@ namespace back_end
         /// <returns>A collection of Todo items.</returns>
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public ActionResult<IList<TodoDto>> GetTodos()
+        public async Task<ActionResult<IEnumerable<TodoDto>>> GetTodos()
         {
-            return Ok(_TodoRepository.AllTodos);
+            var todos = await _todoRepository.GetTodosAsync();
+            return Ok(_mapper.Map<IEnumerable<TodoDto>>(todos));
         }
 
         // GET: api/<TodoController>
@@ -33,17 +37,18 @@ namespace back_end
         /// Returns a Todo by Id
         /// </summary>
         /// <returns>A single Todo item.</returns>
-        [HttpGet("{id}")]
+        [HttpGet("{id}", Name = "GetTodo")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public ActionResult<TodoDto> GetById(int id)
+        public async Task<ActionResult<TodoDto>> GetTodoById(int id)
         {
-            TodoDto todo = _TodoRepository.GetTodoById(id);
+            var todo = await _todoRepository.GetTodoAsync(id);
             if (todo == null)
             {
                 return NotFound();
             }
-            return Ok(todo);
+            var todoDto = _mapper.Map<TodoDto>(todo);
+            return Ok(todoDto);
         }
 
         // POST: api/<TodoController>
@@ -54,10 +59,20 @@ namespace back_end
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public ActionResult<TodoDto> CreateTodo(TodoForCreationDto createTodo)
+        public async Task<ActionResult<TodoDto>> CreateTodo(TodoForCreationDto createTodo)
         {
-            _TodoRepository.CreateTodo(createTodo);
-            return Created();
+            // if(await _todoRepository.TodoExistsAsync())
+            var todo = _mapper.Map<Entities.Todo>(createTodo);
+
+            _todoRepository.CreateTodo(todo);
+            await _todoRepository.SaveChangesAsync();
+
+            var createdTodo = _mapper.Map<Models.TodoDto>(todo);
+
+            return CreatedAtRoute("GetTodo", new
+            {
+                Id = createdTodo.Id,
+            }, createdTodo);
         }
 
         // PUT: api/<TodoController>
@@ -68,30 +83,38 @@ namespace back_end
         [HttpPut("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public ActionResult<TodoDto> UpdateById(int id, TodoForUpdateDto updatedTodo)
+        public async Task<ActionResult> UpdateTodoById(int id, TodoForUpdateDto updatedTodo)
         {
-            if (_TodoRepository.GetTodoById(id) == null)
+            if (!await _todoRepository.TodoExistsAsync(id))
+            {
                 return NotFound();
+            }
 
-            _TodoRepository.UpdateTodoById(id, updatedTodo);
+            var todo = await _todoRepository.GetTodoAsync(id);
+
+
+            _mapper.Map(updatedTodo, todo);
+
+            await _todoRepository.SaveChangesAsync();
+
             return NoContent();
         }
 
-        // POST: api/<TodoController>
+        // DELETE: api/<TodoController>
         /// <summary>
-        /// Create a new Todo
+        /// Delete a single Todo
         /// </summary>
         /// <returns>A collection of Todo items.</returns>
-        [HttpDelete]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public ActionResult<TodoDto> DeleteTodo(int id)
-        {
-            if (_TodoRepository.GetTodoById(id) == null)
-                return NotFound();
+        // [HttpDelete]
+        // [ProducesResponseType(StatusCodes.Status204NoContent)]
+        // [ProducesResponseType(StatusCodes.Status404NotFound)]
+        // public ActionResult<TodoDto> DeleteTodo(int id)
+        // {
+        //     if (_todoRepository.GetTodoById(id) == null)
+        //         return NotFound();
 
-            _TodoRepository.DeleteTodoById(id);
-            return NoContent();
-        }
+        //     _todoRepository.DeleteTodoById(id);
+        //     return NoContent();
+        // }
     }
 }

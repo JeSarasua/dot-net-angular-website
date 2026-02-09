@@ -1,10 +1,11 @@
 using System.Reflection;
 using back_end.DbContexts;
 using back_end.Models;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddSingleton<ITodoRepository, MockTodoRepository>();
+// builder.Services.AddSingleton<ITodoRepository, MockTodoRepository>();
 
 builder
     .Services.AddControllers(options =>
@@ -34,7 +35,13 @@ builder.Services.AddSwaggerGen(options =>
     options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
 });
 
-builder.Services.AddDbContext<TodoContext>();
+builder.Services.AddDbContext<TodoContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("TodoDb"))
+);
+
+builder.Services.AddScoped<ITodoRepository, TodoRepository>();
+
+builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 var app = builder.Build();
 
