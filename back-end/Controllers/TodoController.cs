@@ -1,6 +1,7 @@
 using System.Net.Mime;
 using AutoMapper;
 using back_end.Models;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 
 namespace back_end
@@ -100,21 +101,63 @@ namespace back_end
             return NoContent();
         }
 
+        // PATCH: api/<TodoController>
+        /// <summary>
+        /// Partially update a single Todo
+        /// </summary>
+        /// <returns>A collection of Todo items.</returns>
+        [HttpPatch("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult> PartiallyUpdateTodoById(int id, JsonPatchDocument<TodoForUpdateDto> patchDocument)
+        {
+            if (!await _todoRepository.TodoExistsAsync(id))
+            {
+                return NotFound();
+            }
+            var todo = await _todoRepository.GetTodoAsync(id);
+
+            var todoToPatch = _mapper.Map<TodoForUpdateDto>(todo);
+
+
+            patchDocument.ApplyTo(todoToPatch, ModelState);
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            if (!TryValidateModel(todoToPatch))
+            {
+                return BadRequest(ModelState);
+            }
+
+            _mapper.Map(todoToPatch, todo);
+
+            await _todoRepository.SaveChangesAsync();
+
+            return NoContent();
+        }
+
         // DELETE: api/<TodoController>
         /// <summary>
         /// Delete a single Todo
         /// </summary>
         /// <returns>A collection of Todo items.</returns>
-        // [HttpDelete]
-        // [ProducesResponseType(StatusCodes.Status204NoContent)]
-        // [ProducesResponseType(StatusCodes.Status404NotFound)]
-        // public ActionResult<TodoDto> DeleteTodo(int id)
-        // {
-        //     if (_todoRepository.GetTodoById(id) == null)
-        //         return NotFound();
+        [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult> DeleteTodo(int id)
+        {
+            var todo = await _todoRepository.GetTodoAsync(id);
+            if (todo == null)
+            {
+                return NotFound();
+            }
 
-        //     _todoRepository.DeleteTodoById(id);
-        //     return NoContent();
-        // }
+            _todoRepository.DeleteTodo(todo);
+            await _todoRepository.SaveChangesAsync();
+            return NoContent();
+        }
     }
 }

@@ -28,6 +28,12 @@ public class TodoRepository : ITodoRepository
         _context.Todos.Add(todo);
     }
 
+    public void DeleteTodo(Todo todo)
+    {
+        _context.Todos.Remove(todo);
+    }
+
+
 
 
     public async Task<bool> SaveChangesAsync()

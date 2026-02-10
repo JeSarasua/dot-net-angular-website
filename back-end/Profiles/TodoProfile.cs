@@ -10,5 +10,7 @@ public class TodoProfile : Profile
         CreateMap<Entities.Todo, Models.TodoDto>();
         CreateMap<Models.TodoForCreationDto, Entities.Todo>();
         CreateMap<Models.TodoForUpdateDto, Entities.Todo>();
+        CreateMap<Entities.Todo, Models.TodoForUpdateDto>();
+
     }
 }

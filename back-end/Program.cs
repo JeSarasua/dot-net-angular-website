@@ -12,6 +12,7 @@ builder
     {
         options.ReturnHttpNotAcceptable = true;
     })
+    .AddNewtonsoftJson()
     .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.WriteIndented = true;
