@@ -18,6 +18,30 @@ public class TodoRepository : ITodoRepository
         return await _context.Todos.OrderBy(todo => todo.Name).ToListAsync();
     }
 
+    public async Task<IEnumerable<Todo>> GetTodosAsync(string? name, string? searchQuery, int pageNumber, int pageSize)
+    {
+        var todos = _context.Todos as IQueryable<Todo>;
+
+        // FILTERS
+        if (!string.IsNullOrWhiteSpace(name))
+        {
+            name = name.Trim();
+            todos = todos.Where(todo => todo.Name == name);
+        }
+
+        // SEARCH
+        if (!string.IsNullOrWhiteSpace(searchQuery))
+        {
+            searchQuery = searchQuery.Trim();
+            todos = todos.Where(todo => todo.Name.Contains(searchQuery) || (todo.Description != null && todo.Description.Contains(searchQuery)));
+        }
+
+        return await todos.OrderBy(todo => todo.Name)
+            .Skip(pageSize * (pageNumber - 1))
+            .Take(pageSize)
+            .ToListAsync();
+    }
+
     public async Task<Todo?> GetTodoAsync(int todoId)
     {
         return await _context.Todos.Where(todo => todo.Id == todoId).FirstOrDefaultAsync();

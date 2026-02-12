@@ -12,6 +12,7 @@ namespace back_end
     {
         private ITodoRepository _todoRepository;
         private readonly IMapper _mapper;
+        const int MAX_TODOS_PAGE_SIZE = 20;
 
         public TodoController(ITodoRepository todoRepository, IMapper mapper)
         {
@@ -26,9 +27,14 @@ namespace back_end
         /// <returns>A collection of Todo items.</returns>
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<ActionResult<IEnumerable<TodoDto>>> GetTodos()
+        public async Task<ActionResult<IEnumerable<TodoDto>>> GetTodos(
+            string? name, string? searchQuery, int pageNumber = 1, int pageSize = 10)
         {
-            var todos = await _todoRepository.GetTodosAsync();
+            if (pageSize > MAX_TODOS_PAGE_SIZE)
+            {
+                pageSize = MAX_TODOS_PAGE_SIZE;
+            }
+            var todos = await _todoRepository.GetTodosAsync(name, searchQuery, pageNumber, pageSize);
             return Ok(_mapper.Map<IEnumerable<TodoDto>>(todos));
         }
 
