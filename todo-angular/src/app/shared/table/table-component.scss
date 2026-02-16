@@ -1,0 +1,16 @@
+.mat-mdc-table {
+  border-spacing: 0 16px;
+}
+
+.mat-mdc-row {
+  height: 80px;
+  background: #898dbd;
+
+  .mat-mdc-cell:first-child {
+    border-radius: 20px 0 0 20px;
+  }
+
+  .mat-mdc-cell:last-child {
+    border-radius: 0 20px 20px 0;
+  }
+}
