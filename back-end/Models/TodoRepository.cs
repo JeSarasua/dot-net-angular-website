@@ -18,7 +18,7 @@ public class TodoRepository : ITodoRepository
         return await _context.Todos.OrderBy(todo => todo.Name).ToListAsync();
     }
 
-    public async Task<IEnumerable<Todo>> GetTodosAsync(string? name, string? searchQuery, int pageNumber, int pageSize)
+    public async Task<(IEnumerable<Todo>, PaginationMetadata)> GetTodosAsync(string? name, string? searchQuery, int pageNumber, int pageSize)
     {
         var todos = _context.Todos as IQueryable<Todo>;
 
@@ -36,10 +36,16 @@ public class TodoRepository : ITodoRepository
             todos = todos.Where(todo => todo.Name.Contains(searchQuery) || (todo.Description != null && todo.Description.Contains(searchQuery)));
         }
 
-        return await todos.OrderBy(todo => todo.Name)
+        var totalItemCount = await todos.CountAsync();
+
+        var PaginationMetadata = new PaginationMetadata(totalItemCount, pageSize, pageNumber);
+
+        var todosToReturn = await todos.OrderBy(todo => todo.Name)
             .Skip(pageSize * (pageNumber - 1))
             .Take(pageSize)
             .ToListAsync();
+
+        return (todosToReturn, PaginationMetadata);
     }
 
     public async Task<Todo?> GetTodoAsync(int todoId)

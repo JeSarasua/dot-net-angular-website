@@ -1,13 +1,17 @@
+using System.Text.Json;
 using AutoMapper;
 using back_end.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 
 namespace back_end
 {
-    [Route("api/todo")]
-    [Produces("application/json")]
     [ApiController]
+    [Produces("application/json")]
+    [Consumes("application/json")]
+    [Authorize]
+    [Route("api/todo")]
     public class TodoController : ControllerBase
     {
         private ITodoRepository _todoRepository;
@@ -34,7 +38,9 @@ namespace back_end
             {
                 pageSize = MAX_TODOS_PAGE_SIZE;
             }
-            var todos = await _todoRepository.GetTodosAsync(name, searchQuery, pageNumber, pageSize);
+            var (todos, PaginationMetadata) = await _todoRepository.GetTodosAsync(name, searchQuery, pageNumber, pageSize);
+            Response.Headers.Append("X-Pagination", JsonSerializer.Serialize(PaginationMetadata));
+
             return Ok(_mapper.Map<IEnumerable<TodoDto>>(todos));
         }
 
@@ -45,6 +51,7 @@ namespace back_end
         /// <returns>A single Todo item.</returns>
         [HttpGet("{id}", Name = "GetTodo")]
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<TodoDto>> GetTodoById(int id)
         {
@@ -88,6 +95,7 @@ namespace back_end
         /// <returns>A collection of Todo items.</returns>
         [HttpPut("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult> UpdateTodoById(int id, TodoForUpdateDto updatedTodo)
         {
@@ -113,6 +121,7 @@ namespace back_end
         /// <returns>A collection of Todo items.</returns>
         [HttpPatch("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult> PartiallyUpdateTodoById(int id, JsonPatchDocument<TodoForUpdateDto> patchDocument)
         {
@@ -151,6 +160,7 @@ namespace back_end
         /// <returns>A collection of Todo items.</returns>
         [HttpDelete("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult> DeleteTodo(int id)
         {
