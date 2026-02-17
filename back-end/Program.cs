@@ -1,5 +1,5 @@
 using System.Reflection;
-using System.Security.Cryptography.Xml;
+using System.Text.Json.Serialization;
 using Asp.Versioning;
 using back_end.DbContexts;
 using back_end.Models;
@@ -16,10 +16,14 @@ builder
     {
         options.ReturnHttpNotAcceptable = true;
     })
-    .AddNewtonsoftJson()
+    .AddNewtonsoftJson(options =>
+    {
+        options.SerializerSettings.Converters.Add(new Newtonsoft.Json.Converters.StringEnumConverter());
+    })
     .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.WriteIndented = true;
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
     });
 ;
 
@@ -49,6 +53,16 @@ builder.Services.AddSwaggerGen(setupAction =>
             new List<string>()
         }
     });
+
+    // Exposes local
+    if (builder.Environment.IsDevelopment())
+    {
+        setupAction.AddServer(new OpenApiServer
+        {
+            Url = builder.Configuration["Authentication:Issuer"],
+            Description = "Local development"
+        });
+    }
 });
 
 builder.Services.AddDbContext<TodoContext>(options =>
@@ -83,6 +97,7 @@ var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {
+    app.UseCors(builder => builder.WithOrigins("*"));
     app.UseSwagger();
     app.UseSwaggerUI();
 }
