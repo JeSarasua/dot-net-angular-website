@@ -1,5 +1,8 @@
-import { Component, computed } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { ColumnNameWithKey, TableComponent } from '../shared/table/table-component';
+import { TodoService } from '../shared/services/todo-service';
+import { formatDate } from '@angular/common';
+import { getRelativeTime } from '../utils/get-relative-time';
 
 export type TodoRowData = {
   name: string;
@@ -21,34 +24,17 @@ const COLUMN_DEFS: ColumnNameWithKey[] = [
 })
 export class TodosComponent {
   readonly columnDefs = COLUMN_DEFS;
-  dataSource = computed(
-    () =>
-      [
-        {
-          name: 'Clean the kitchen',
-          status: 'In progress',
-          due: '3 days',
-        },
-        {
-          name: 'Buy groceries',
-          status: 'Not started',
-          due: '1 day',
-        },
-        {
-          name: 'Finish project report',
-          status: 'In progress',
-          due: '5 days',
-        },
-        {
-          name: 'Schedule dentist appointment',
-          status: 'Completed',
-          due: 'Overdue',
-        },
-        {
-          name: 'Walk the dog',
-          status: 'Not started',
-          due: '2 hours',
-        },
-      ] as TodoRowData[],
+  searchQuery = signal('');
+  todoResource = inject(TodoService).todoResource(this.searchQuery);
+
+  dataSource = computed(() =>
+    this.todoResource.value().map(
+      (todo) =>
+        ({
+          name: todo.name,
+          status: todo.status,
+          due: todo.dueDate ? getRelativeTime(todo.dueDate) : '',
+        }) as TodoRowData,
+    ),
   );
 }
