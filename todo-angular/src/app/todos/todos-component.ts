@@ -25,7 +25,7 @@ const COLUMN_DEFS: ColumnNameWithKey[] = [
 export class TodosComponent {
   readonly columnDefs = COLUMN_DEFS;
   searchQuery = signal('');
-  todoResource = inject(TodoService).todoResource(this.searchQuery);
+  todoResource = inject(TodoService).todosResource(this.searchQuery);
 
   dataSource = computed(() =>
     this.todoResource.value().map(

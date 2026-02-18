@@ -1,6 +1,6 @@
 import { httpResource } from '@angular/common/http';
 import { inject, Injectable, Signal } from '@angular/core';
-import { apiTodoGet } from '../../api/functions';
+import { apiTodoGet, getTodo } from '../../api/functions';
 import { ApiConfiguration, provideApiConfiguration } from '../../api/api-configuration';
 import { TodoDto } from '../../api/models';
 
@@ -10,7 +10,7 @@ import { TodoDto } from '../../api/models';
 export class TodoService {
   rootUrl = inject(ApiConfiguration).rootUrl;
 
-  todoResource = (searchQuery: Signal<string>) =>
+  todosResource = (searchQuery: Signal<string>) =>
     httpResource<TodoDto[]>(
       () => ({
         url: `${this.rootUrl}${apiTodoGet.PATH}`,
@@ -19,6 +19,17 @@ export class TodoService {
       }),
       {
         defaultValue: [],
+      },
+    );
+
+  todoResource = (todoId: string) =>
+    httpResource<TodoDto>(
+      () => ({
+        url: `${this.rootUrl}${getTodo.PATH.replace('{id}', todoId)}`,
+        method: 'GET',
+      }),
+      {
+        defaultValue: {},
       },
     );
 }
