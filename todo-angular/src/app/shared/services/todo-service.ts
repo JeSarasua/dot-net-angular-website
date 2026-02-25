@@ -22,10 +22,10 @@ export class TodoService {
       },
     );
 
-  todoResource = (todoId: string) =>
+  todoResource = (todoId: Signal<string>) =>
     httpResource<TodoDto>(
       () => ({
-        url: `${this.rootUrl}${getTodo.PATH.replace('{id}', todoId)}`,
+        url: `${this.rootUrl}${getTodo.PATH.replace('{id}', todoId())}`,
         method: 'GET',
       }),
       {

@@ -1,23 +1,36 @@
-import { Component, computed, effect, inject, signal, Signal } from '@angular/core';
+import { Component, inject, input } from '@angular/core';
 import { TodoService } from '../../shared/services/todo-service';
-import { ActivatedRoute } from '@angular/router';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { DatePipe } from '@angular/common';
+import { STATUS_ICONS } from '../../shared/icons/status-icons';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-todo-component',
-  imports: [],
-  template: `<h1>Todo component</h1>
+  imports: [MatCardModule, MatButtonModule, MatIconModule, MatProgressSpinnerModule, DatePipe],
+  templateUrl: 'todo-component.html',
+  styles: `
+    .header {
+      padding: 10px 0px 0px 10px;
+    }
 
-    <div>NAME: {{ todoName() }}</div> `,
+    .mat-mdc-card {
+      align-items: center;
+    }
+  `,
 })
 export class TodoComponent {
-  todoResource = inject(TodoService).todoResource;
-  route = inject(ActivatedRoute);
-  routeId = signal<string | null>(null);
-  todoName = signal<string>('');
+  id = input.required<string>();
+  todoResource = inject(TodoService).todoResource(this.id);
+  #router = inject(Router);
 
-  constructor() {
-    this.todoName.set(
-      this.todoResource(this.route.snapshot.paramMap.get('id') ?? '').value().name ?? '',
-    );
+  statusIcons = STATUS_ICONS;
+  todoInfo = this.todoResource.value;
+
+  onBack() {
+    this.#router.navigate(['/todos']);
   }
 }

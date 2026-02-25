@@ -4,7 +4,8 @@
 
 .mat-mdc-row {
   height: 80px;
-  background: #898dbd;
+  background: #d2d8c0;
+  cursor: pointer;
 
   .mat-mdc-cell:first-child {
     border-radius: 20px 0 0 20px;
@@ -13,4 +14,8 @@
   .mat-mdc-cell:last-child {
     border-radius: 0 20px 20px 0;
   }
+}
+
+.mat-mdc-row:hover {
+  background-color: rgba(200, 0, 40, 0.04);
 }
