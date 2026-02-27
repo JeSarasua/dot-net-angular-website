@@ -30,7 +30,7 @@
       <p>{{ todoInfo().dueDate | date: 'medium' }}</p>
     </mat-card-content>
     <mat-card-actions>
-      <button matButton>
+      <button (click)="onEdit()" matButton>
         Edit
         <mat-icon>edit</mat-icon>
       </button>

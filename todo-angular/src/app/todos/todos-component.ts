@@ -4,6 +4,8 @@ import { TodoService } from '../shared/services/todo-service';
 import { getRelativeTime } from '../utils/get-relative-time';
 import { Router } from '@angular/router';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatButton } from '@angular/material/button';
+import { MatIcon } from '@angular/material/icon';
 
 export type TodoRowData = {
   id: number;
@@ -20,26 +22,13 @@ const COLUMN_DEFS: ColumnNameWithKey[] = [
 
 @Component({
   selector: 'todos-component',
-  imports: [TableComponent, MatProgressSpinnerModule],
-  template: `
-    <div class="header">
-      <h1>Todos</h1>
-    </div>
-    @if (todoResource.isLoading()) {
-      <div class="spinner">
-        <mat-spinner [diameter]="220" />
-      </div>
-    } @else {
-      <table-component
-        [dataSource]="dataSource()"
-        [columnDefs]="columnDefs"
-        (rowClicked)="handleRowClicked($event)"
-      />
-    }
-  `,
+  imports: [TableComponent, MatProgressSpinnerModule, MatButton, MatIcon],
+  templateUrl: 'todos-component.html',
   styles: `
     .header {
-      padding: 10px 0px 0px 10px;
+      display: flex;
+      justify-content: space-between;
+      padding: 20px 30px 0px 10px;
     }
 
     .spinner {
@@ -47,6 +36,16 @@ const COLUMN_DEFS: ColumnNameWithKey[] = [
       display: flex;
       justify-content: center;
       align-items: center;
+    }
+
+    .create-btn {
+      font-size: 18px;
+      height: 48px;
+    }
+
+    .create-btn mat-icon {
+      font-size: 24px;
+      width: 24px;
     }
   `,
 })
@@ -72,5 +71,9 @@ export class TodosComponent {
     const id = todoRowData?.id;
     if (!id) return;
     this.#router.navigate(['/todos', id]);
+  }
+
+  onCreate() {
+    this.#router.navigate(['/todos/create']);
   }
 }

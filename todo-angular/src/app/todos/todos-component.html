@@ -1,0 +1,18 @@
+<div class="header">
+  <h1>Todos</h1>
+  <button mat-raised-button (click)="onCreate()" class="create-btn">
+    Create Todo
+    <mat-icon>add_circle_outline</mat-icon>
+  </button>
+</div>
+@if (todoResource.isLoading()) {
+  <div class="spinner">
+    <mat-spinner [diameter]="220" />
+  </div>
+} @else {
+  <table-component
+    [dataSource]="dataSource()"
+    [columnDefs]="columnDefs"
+    (rowClicked)="handleRowClicked($event)"
+  />
+}

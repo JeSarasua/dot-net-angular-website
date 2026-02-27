@@ -1,0 +1,37 @@
+<h1>Todo Form</h1>
+
+<div class="form-content">
+  <mat-form-field>
+    <mat-label>Name</mat-label>
+    <input matInput />
+  </mat-form-field>
+
+  <mat-form-field>
+    <mat-label>Status</mat-label>
+    <mat-select>
+      @for (status of todoStatus; track $index) {
+        <mat-option [value]="$index">{{ status }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+
+  <mat-form-field>
+    <mat-label>Choose a date</mat-label>
+    <input matInput [matDatepicker]="datePicker" />
+    <mat-hint>MM/DD/YYYY</mat-hint>
+    <mat-datepicker-toggle matIconSuffix [for]="datePicker" />
+    <mat-datepicker #datePicker />
+  </mat-form-field>
+
+  <mat-form-field>
+    <mat-label>Choose a time</mat-label>
+    <input matInput [matTimepicker]="timePicker" />
+    <mat-timepicker-toggle matIconSuffix [for]="timePicker" />
+    <mat-timepicker #timePicker />
+  </mat-form-field>
+
+  <mat-form-field>
+    <mat-label>Description</mat-label>
+    <textarea matInput></textarea>
+  </mat-form-field>
+</div>

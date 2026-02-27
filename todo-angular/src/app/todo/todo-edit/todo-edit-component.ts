@@ -1,17 +1,21 @@
 import { Component, inject, input } from '@angular/core';
-import { TodoService } from '../../shared/services/todo-service';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { DatePipe } from '@angular/common';
-import { STATUS_ICONS } from '../../shared/icons/status-icons';
 import { Router } from '@angular/router';
+import { TodoFormComponent } from '../../shared/todo-form-component/todo-form-component';
 
 @Component({
-  selector: 'app-todo-component',
-  imports: [MatCardModule, MatButtonModule, MatIconModule, MatProgressSpinnerModule, DatePipe],
-  templateUrl: 'todo-component.html',
+  selector: 'todo-edit-component',
+  imports: [
+    MatCardModule,
+    MatButtonModule,
+    MatIconModule,
+    MatProgressSpinnerModule,
+    TodoFormComponent,
+  ],
+  templateUrl: './todo-edit-component.html',
   styles: `
     .header {
       padding: 10px 0px 0px 10px;
@@ -22,15 +26,11 @@ import { Router } from '@angular/router';
     }
   `,
 })
-export class TodoComponent {
+export class TodoEditComponent {
   id = input.required<string>();
-  todoResource = inject(TodoService).todoResource(this.id);
   #router = inject(Router);
 
-  statusIcons = STATUS_ICONS;
-  todoInfo = this.todoResource.value;
-
   onBack() {
-    this.#router.navigate(['/todos']);
+    this.#router.navigate([`/todos/${this.id()}`]);
   }
 }
