@@ -7,9 +7,19 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
+var frontEndDevelopmentPolicy = "Angular Frontend Development";
+
 var builder = WebApplication.CreateBuilder(args);
 
 // builder.Services.AddSingleton<ITodoRepository, MockTodoRepository>();
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(frontEndDevelopmentPolicy, policy =>
+    {
+        policy.WithOrigins("http://localhost:4200").AllowAnyMethod().AllowAnyHeader();
+    });
+});
 
 builder
     .Services.AddControllers(options =>
@@ -97,7 +107,7 @@ var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {
-    app.UseCors(builder => builder.WithOrigins("*"));
+    app.UseCors(frontEndDevelopmentPolicy);
     app.UseSwagger();
     app.UseSwaggerUI();
 }

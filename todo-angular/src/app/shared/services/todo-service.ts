@@ -1,19 +1,22 @@
-import { httpResource } from '@angular/common/http';
+import { HttpClient, httpResource } from '@angular/common/http';
 import { inject, Injectable, Signal } from '@angular/core';
-import { apiTodoGet, getTodo } from '../../api/functions';
-import { ApiConfiguration, provideApiConfiguration } from '../../api/api-configuration';
+import { apiTodoGet, apiTodoPost, ApiTodoPost$Params, getTodo } from '../../api/functions';
+import { ApiConfiguration } from '../../api/api-configuration';
 import { TodoDto } from '../../api/models';
+import { StrictHttpResponse } from '../../api/strict-http-response';
+import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
 })
 export class TodoService {
-  rootUrl = inject(ApiConfiguration).rootUrl;
+  #rootUrl = inject(ApiConfiguration).rootUrl;
+  #httpClient = inject(HttpClient);
 
   todosResource = (searchQuery: Signal<string>) =>
     httpResource<TodoDto[]>(
       () => ({
-        url: `${this.rootUrl}${apiTodoGet.PATH}`,
+        url: `${this.#rootUrl}${apiTodoGet.PATH}`,
         method: 'GET',
         params: { searchQuery: searchQuery() },
       }),
@@ -25,11 +28,15 @@ export class TodoService {
   todoResource = (todoId: Signal<string>) =>
     httpResource<TodoDto>(
       () => ({
-        url: `${this.rootUrl}${getTodo.PATH.replace('{id}', todoId())}`,
+        url: `${this.#rootUrl}${getTodo.PATH.replace('{id}', todoId())}`,
         method: 'GET',
       }),
       {
         defaultValue: {},
       },
     );
+
+  createTodo(params: ApiTodoPost$Params): Observable<StrictHttpResponse<TodoDto>> {
+    return apiTodoPost(this.#httpClient, `${this.#rootUrl}`, params);
+  }
 }

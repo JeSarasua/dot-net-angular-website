@@ -1,10 +1,16 @@
-import { Component, inject } from '@angular/core';
+import { Component, effect, inject, Signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Router } from '@angular/router';
 import { TodoFormComponent } from '../../shared/todo-form-component/todo-form-component';
+import { TodoService } from '../../shared/services/todo-service';
+import { StrictHttpResponse } from '../../api/strict-http-response';
+import { TodoDto } from '../../api/models';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { catchError, of, Subject, switchMap } from 'rxjs';
+import { ApiTodoPost$Params } from '../../api/functions';
 
 @Component({
   selector: 'todo-create-component',
@@ -28,6 +34,41 @@ import { TodoFormComponent } from '../../shared/todo-form-component/todo-form-co
 })
 export class TodoCreateComponent {
   #router = inject(Router);
+  #todoService = inject(TodoService);
+  newTodo: Signal<StrictHttpResponse<TodoDto> | undefined> | undefined;
+
+  trigger$ = new Subject<ApiTodoPost$Params>();
+
+  createTodoSignal = toSignal(
+    this.trigger$.pipe(
+      switchMap((data) =>
+        this.#todoService.createTodo(data).pipe(
+          catchError((err) => {
+            console.error('POST FAILED', err);
+            return of(null);
+          }),
+        ),
+      ),
+    ),
+    { initialValue: null },
+  );
+
+  constructor() {
+    effect(() => {
+      const response = this.createTodoSignal()?.body;
+      console.log('RESPONSE: ', JSON.stringify(response));
+    });
+  }
+
+  createTodo() {
+    this.trigger$.next({
+      body: {
+        description: 'New Todo Wahoo! Wahoo! Wahoo!',
+        name: 'New',
+        status: 'ToDo',
+      },
+    });
+  }
 
   onBack() {
     this.#router.navigate([`/todos`]);
