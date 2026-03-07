@@ -1,6 +1,13 @@
 import { HttpClient, httpResource } from '@angular/common/http';
 import { inject, Injectable, Signal } from '@angular/core';
-import { apiTodoGet, apiTodoPost, ApiTodoPost$Params, getTodo } from '../../api/functions';
+import {
+  apiTodoGet,
+  apiTodoIdDelete,
+  ApiTodoIdDelete$Params,
+  apiTodoPost,
+  ApiTodoPost$Params,
+  getTodo,
+} from '../../api/functions';
 import { ApiConfiguration } from '../../api/api-configuration';
 import { TodoDto } from '../../api/models';
 import { StrictHttpResponse } from '../../api/strict-http-response';
@@ -38,5 +45,9 @@ export class TodoService {
 
   createTodo(params: ApiTodoPost$Params): Observable<StrictHttpResponse<TodoDto>> {
     return apiTodoPost(this.#httpClient, `${this.#rootUrl}`, params);
+  }
+
+  deleteTodo(params: ApiTodoIdDelete$Params) {
+    return apiTodoIdDelete(this.#httpClient, `${this.#rootUrl}`, params);
   }
 }
