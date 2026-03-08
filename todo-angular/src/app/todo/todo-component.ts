@@ -1,4 +1,4 @@
-import { Component, effect, inject, input } from '@angular/core';
+import { Component, DestroyRef, inject, input } from '@angular/core';
 import { TodoService } from '../shared/services/todo-service';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -7,8 +7,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { DatePipe } from '@angular/common';
 import { STATUS_ICONS } from '../shared/icons/status-icons';
 import { Router } from '@angular/router';
-import { catchError, of, Subject, switchMap } from 'rxjs';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { catchError, of, tap } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ApiTodoIdDelete$Params } from '../api/functions';
 
 @Component({
@@ -29,32 +29,12 @@ export class TodoComponent {
   id = input.required<string>();
   #todoService = inject(TodoService);
   #router = inject(Router);
+  #destroyRef = inject(DestroyRef);
 
   todoResource = this.#todoService.todoResource(this.id);
 
   statusIcons = STATUS_ICONS;
   todoInfo = this.todoResource.value;
-
-  trigger$ = new Subject<ApiTodoIdDelete$Params>();
-
-  deleteTodoSignal = toSignal(
-    this.trigger$.pipe(
-      switchMap((params) =>
-        this.#todoService.deleteTodo(params).pipe(
-          catchError((err) => {
-            console.error('DELETE FAILED', err);
-            return of(null);
-          }),
-        ),
-      ),
-    ),
-  );
-
-  constructor() {
-    effect(() => {
-      if (this.deleteTodoSignal()?.ok) this.#router.navigate([`/todos`]);
-    });
-  }
 
   onBack() {
     this.#router.navigate([`/todos`]);
@@ -65,6 +45,20 @@ export class TodoComponent {
   }
 
   onDelete() {
-    this.trigger$.next({ id: Number(this.id()) });
+    const params: ApiTodoIdDelete$Params = { id: Number(this.id()) };
+
+    this.#todoService
+      .deleteTodo(params)
+      .pipe(
+        takeUntilDestroyed(this.#destroyRef),
+        tap(() => {
+          this.#router.navigate([`/todos`]);
+        }),
+        catchError((err) => {
+          console.error('DELETE FAILED', err);
+          return of(null);
+        }),
+      )
+      .subscribe();
   }
 }

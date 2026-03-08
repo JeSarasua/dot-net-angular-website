@@ -13,10 +13,10 @@
     <h1>Edit</h1>
   </mat-card-header>
   <mat-card-content>
-    <todo-form-component />
+    <todo-form-component [initialTodo]="todoInfo()" />
   </mat-card-content>
   <mat-card-actions>
-    <button matButton>
+    <button (click)="onUpdate()" matButton>
       Confirm
       <mat-icon>check</mat-icon>
     </button>

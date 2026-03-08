@@ -4,6 +4,8 @@ import {
   apiTodoGet,
   apiTodoIdDelete,
   ApiTodoIdDelete$Params,
+  apiTodoIdPut,
+  ApiTodoIdPut$Params,
   apiTodoPost,
   ApiTodoPost$Params,
   getTodo,
@@ -39,7 +41,7 @@ export class TodoService {
         method: 'GET',
       }),
       {
-        defaultValue: {},
+        defaultValue: undefined,
       },
     );
 
@@ -47,7 +49,11 @@ export class TodoService {
     return apiTodoPost(this.#httpClient, `${this.#rootUrl}`, params);
   }
 
-  deleteTodo(params: ApiTodoIdDelete$Params) {
+  updateTodo(params: ApiTodoIdPut$Params): Observable<StrictHttpResponse<void>> {
+    return apiTodoIdPut(this.#httpClient, `${this.#rootUrl}`, params);
+  }
+
+  deleteTodo(params: ApiTodoIdDelete$Params): Observable<StrictHttpResponse<void>> {
     return apiTodoIdDelete(this.#httpClient, `${this.#rootUrl}`, params);
   }
 }

@@ -1,10 +1,14 @@
-import { Component, inject, input } from '@angular/core';
+import { Component, inject, input, viewChild } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Router } from '@angular/router';
 import { TodoFormComponent } from '../../shared/todo-form-component/todo-form-component';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { catchError, of, Subject, switchMap, tap } from 'rxjs';
+import { ApiTodoIdPut$Params } from '../../api/functions';
+import { TodoService } from '../../shared/services/todo-service';
 
 @Component({
   selector: 'todo-edit-component',
@@ -29,8 +33,38 @@ import { TodoFormComponent } from '../../shared/todo-form-component/todo-form-co
 export class TodoEditComponent {
   id = input.required<string>();
   #router = inject(Router);
+  #todoService = inject(TodoService);
+  todoResource = this.#todoService.todoResource(this.id);
+  todoInfo = this.todoResource.value;
+
+  todoForm = viewChild(TodoFormComponent);
+
+  trigger$ = new Subject<ApiTodoIdPut$Params>();
+
+  updateTodoSignal = toSignal(
+    this.trigger$.pipe(
+      switchMap((params) =>
+        this.#todoService.updateTodo(params).pipe(
+          tap(() => {
+            this.#router.navigate([`/todos`]);
+          }),
+          catchError((err) => {
+            console.log('ERROR during update: ', err);
+            return of(null);
+          }),
+        ),
+      ),
+    ),
+  );
 
   onBack() {
     this.#router.navigate([`/todos/${this.id()}`]);
+  }
+
+  onUpdate() {
+    this.trigger$.next({
+      id: Number(this.id()),
+      body: this.todoForm()?.dtoValue(),
+    } satisfies ApiTodoIdPut$Params);
   }
 }

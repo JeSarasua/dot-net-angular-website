@@ -11,23 +11,23 @@
   </mat-card-actions>
   @if (todoResource.isLoading()) {
     <mat-spinner [diameter]="140" />
-  } @else {
+  } @else if (todoInfo(); as todo) {
     <mat-card-header>
       <div mat-card-avatar>
-        <mat-icon [fontIcon]="statusIcons[todoInfo().status ?? 'ToDo']"></mat-icon>
+        <mat-icon [fontIcon]="statusIcons[todo.status]"></mat-icon>
       </div>
-      <mat-card-title>{{ todoInfo().name }}</mat-card-title>
+      <mat-card-title>{{ todo.name }}</mat-card-title>
       <mat-card-subtitle>
-        {{ todoInfo().status }}
+        {{ todo.status }}
       </mat-card-subtitle>
     </mat-card-header>
     <mat-card-content>
-      <p>{{ todoInfo().description }}</p>
+      <p>{{ todo.description }}</p>
 
       <h3>Created:</h3>
-      <p>{{ todoInfo().createdDate | date: 'medium' }}</p>
+      <p>{{ todo.createdDate | date: 'medium' }}</p>
       <h3>Due:</h3>
-      <p>{{ todoInfo().dueDate | date: 'medium' }}</p>
+      <p>{{ todo.dueDate | date: 'medium' }}</p>
     </mat-card-content>
     <mat-card-actions>
       <button (click)="onEdit()" matButton>

@@ -6,7 +6,7 @@ export interface TodoDto {
   createdDate?: string;
   description?: string | null;
   dueDate?: string;
-  id?: number;
-  name?: string | null;
-  status?: TodoStatus;
+  id: number;
+  name: string;
+  status: TodoStatus;
 }
