@@ -22,7 +22,7 @@ public class TodoContext : DbContext
                     Name = "Clean the kitchen",
                     Description = "Wipe the counters, do the dishes, and sweep the floor",
                     CreatedDate = new DateTimeOffset(2026, 2, 8, 0, 0, 0, TimeSpan.Zero),
-                    DueDate = new DateTimeOffset(2026, 2, 13, 0, 0, 0, TimeSpan.Zero),
+                    DueDate = null,
                     Status = TodoStatus.ToDo,
                 },
                 new Todo

@@ -15,8 +15,8 @@ public class Todo
     public string Name { get; set; }
 
     [MaxLength(200)]
-    public string Description { get; set; } = string.Empty;
+    public string? Description { get; set; }
     public DateTimeOffset CreatedDate { get; set; }
-    public DateTimeOffset DueDate { get; set; }
+    public DateTimeOffset? DueDate { get; set; }
     public TodoStatus Status { get; set; }
 }

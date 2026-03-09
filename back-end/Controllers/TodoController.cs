@@ -74,7 +74,6 @@ namespace back_end
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<TodoDto>> CreateTodo(TodoForCreationDto createTodo)
         {
-            // if(await _todoRepository.TodoExistsAsync())
             var todo = _mapper.Map<Entities.Todo>(createTodo);
 
             _todoRepository.CreateTodo(todo);

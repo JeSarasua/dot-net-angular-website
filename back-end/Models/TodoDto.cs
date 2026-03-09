@@ -8,9 +8,9 @@ public class TodoDto
     public int Id { get; set; }
     [Required]
     public string Name { get; set; } = string.Empty;
-    public string Description { get; set; } = string.Empty;
+    public string? Description { get; set; }
     public DateTimeOffset CreatedDate { get; set; }
-    public DateTimeOffset DueDate { get; set; }
+    public DateTimeOffset? DueDate { get; set; }
     [Required]
     public TodoStatus Status { get; set; }
 }
