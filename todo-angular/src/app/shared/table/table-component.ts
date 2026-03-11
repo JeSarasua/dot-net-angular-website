@@ -20,12 +20,19 @@ export type ColumnNameWithKey = {
       <tr mat-header-row *matHeaderRowDef="columnKeys()"></tr>
       <tr mat-row *matRowDef="let row; columns: columnKeys()" (click)="emitRowInfo(row)"></tr>
     </table>
-    <table-paginator-component />`,
+    <table-paginator-component
+      [pageSize]="pageSize()"
+      [pageNumber]="pageNumber()"
+      [length]="totalCount()"
+    />`,
   styleUrl: './table-component.scss',
 })
 export class TableComponent<T> {
   dataSource = input.required<T[]>();
   columnDefs = input.required<ColumnNameWithKey[]>();
+  pageNumber = input.required<number>();
+  pageSize = input.required<number>();
+  totalCount = input.required<number>();
 
   rowClicked = output<T>();
 

@@ -1,22 +1,23 @@
-import { Component } from '@angular/core';
-import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { Component, input, signal } from '@angular/core';
+import { MatPaginatorModule } from '@angular/material/paginator';
+import { PaginateViaUrl } from './paginate-via-url';
 
 @Component({
   selector: 'table-paginator-component',
-  imports: [MatPaginatorModule],
+  imports: [MatPaginatorModule, PaginateViaUrl],
   template: `<mat-paginator
-    length="500"
-    pageSize="20"
+    paginateViaUrl
+    [length]="length()"
+    [pageSize]="pageSize()"
     [showFirstLastButtons]="true"
-    [pageSizeOptions]="[5, 10, 20]"
-    [pageIndex]="currentPage"
-    (page)="handlePageEvent($event)"
+    [pageSizeOptions]="pageSizeOptions"
+    [pageIndex]="pageNumber() - 1"
   /> `,
 })
 export class TablePaginatorComponent {
-  currentPage = 0;
+  pageNumber = input.required<number>();
+  pageSize = input.required<number>();
+  length = input.required<number>();
 
-  handlePageEvent(pageEvent: PageEvent) {
-    console.log('Handle Page event', pageEvent);
-  }
+  pageSizeOptions = [5, 10, 20];
 }

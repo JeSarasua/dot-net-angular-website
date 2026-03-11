@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, effect, inject, input, signal } from '@angular/core';
 import { ColumnNameWithKey, TableComponent } from '../shared/table/table-component';
 import { TodoService } from '../shared/services/todo-service';
 import { getRelativeTime } from '../utils/get-relative-time';
@@ -14,11 +14,20 @@ export type TodoRowData = {
   due: string;
 };
 
+type PaginationHeaderInfo = {
+  TotalItemCount: number;
+  TotalPageCount: number;
+  PageSize: number;
+  CurrentPage: number;
+};
+
 const COLUMN_DEFS: ColumnNameWithKey[] = [
   { header: 'Name', key: 'name' },
   { header: 'Status', key: 'status' },
   { header: 'Due', key: 'due' },
 ];
+
+const PAGINATION_RESPONSE_HEADER = 'X-Pagination';
 
 @Component({
   selector: 'todos-component',
@@ -51,8 +60,16 @@ const COLUMN_DEFS: ColumnNameWithKey[] = [
 })
 export class TodosComponent {
   searchQuery = signal('');
-  todoResource = inject(TodoService).todosResource(this.searchQuery);
+  pageNumber = input<string>();
+  pageSize = input<string>();
+
+  #todoService = inject(TodoService);
+  todoResource = this.#todoService.todosResource();
   #router = inject(Router);
+
+  readonly FIRST_PAGE = 1;
+  readonly DEFAULT_PAGE_SIZE = 20;
+  readonly DEFAULT_TOTAL_COUNT = 100;
 
   readonly columnDefs = COLUMN_DEFS;
   dataSource = computed(() =>
@@ -66,6 +83,34 @@ export class TodosComponent {
         }) as TodoRowData,
     ),
   );
+
+  pNumber = computed(() => (this.pageNumber() ? Number(this.pageNumber()) : this.FIRST_PAGE));
+  pSize = computed(() => (this.pageSize() ? Number(this.pageSize()) : this.DEFAULT_PAGE_SIZE));
+
+  totalCount = computed(() => {
+    const header = this.todoResource.headers()?.get(PAGINATION_RESPONSE_HEADER);
+    return header
+      ? (JSON.parse(header) as PaginationHeaderInfo).TotalItemCount
+      : this.DEFAULT_TOTAL_COUNT;
+  });
+
+  constructor() {
+    effect(() => {
+      let pageNumber = this.pNumber();
+      let pageSize = this.pSize();
+
+      if (!pageNumber) {
+        pageNumber = 1;
+      }
+
+      if (!pageSize) {
+        pageSize = 20;
+      }
+
+      this.#todoService.pageNumber.set(pageNumber);
+      this.#todoService.pageSize.set(pageSize);
+    });
+  }
 
   handleRowClicked(todoRowData: TodoRowData) {
     const id = todoRowData?.id;

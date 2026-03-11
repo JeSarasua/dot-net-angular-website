@@ -1,5 +1,5 @@
 import { HttpClient, httpResource } from '@angular/common/http';
-import { inject, Injectable, Signal } from '@angular/core';
+import { inject, Injectable, signal, Signal } from '@angular/core';
 import {
   apiTodoGet,
   apiTodoIdDelete,
@@ -22,17 +22,29 @@ export class TodoService {
   #rootUrl = inject(ApiConfiguration).rootUrl;
   #httpClient = inject(HttpClient);
 
-  todosResource = (searchQuery: Signal<string>) =>
+  readonly DEFAULT_PAGE = 1;
+  readonly DEFAULT_PAGE_SIZE = 20;
+
+  pageNumber = signal(this.DEFAULT_PAGE);
+  pageSize = signal(this.DEFAULT_PAGE_SIZE);
+
+  // FIXME: Handle double fetch when initial page size is set
+  todosResource = () =>
     httpResource<TodoDto[]>(
       () => ({
         url: `${this.#rootUrl}${apiTodoGet.PATH}`,
         method: 'GET',
-        params: { searchQuery: searchQuery() },
+        params: { pageNumber: this.pageNumber(), pageSize: this.pageSize() },
       }),
       {
         defaultValue: [],
       },
     );
+
+  // RXJS Http Client Get Todos
+  // getTodos(params: ApiTodoGet$Params): Observable<StrictHttpResponse<Array<TodoDto>>> {
+  //   return apiTodoGet(this.#httpClient, `${this.#rootUrl}`, params);
+  // }
 
   todoResource = (todoId: Signal<string>) =>
     httpResource<TodoDto>(

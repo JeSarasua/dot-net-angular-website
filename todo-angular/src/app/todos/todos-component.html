@@ -9,10 +9,14 @@
   <div class="spinner">
     <mat-spinner [diameter]="220" />
   </div>
-} @else {
+}
+<div [hidden]="todoResource.isLoading()">
   <table-component
     [dataSource]="dataSource()"
     [columnDefs]="columnDefs"
+    [pageSize]="pSize()"
+    [pageNumber]="pNumber()"
+    [totalCount]="totalCount()"
     (rowClicked)="handleRowClicked($event)"
   />
-}
+</div>
