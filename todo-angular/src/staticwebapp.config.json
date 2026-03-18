@@ -1,0 +1,30 @@
+{
+    "navigationFallback": {
+        "rewrite": "/index.html",
+        "exclude": [
+            "/assets/*",
+            "*.css",
+            "*.js",
+            "*.ico",
+            "*.svg",
+            "*.png",
+            "*.jpg",
+            "*.woff",
+            "*.woff2"
+        ]
+    },
+    "routes": [
+        {
+            "route": "/*",
+            "allowedRoles": [
+                "anonymous"
+            ]
+        }
+    ],
+    "responseOverrides": {
+        "404": {
+            "rewrite": "/index.html",
+            "statusCode": 200
+        }
+    }
+}

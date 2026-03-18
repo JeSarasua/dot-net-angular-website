@@ -22,6 +22,6 @@ export function provideApiConfiguration(rootUrl: string) {
   providedIn: 'root',
 })
 export class ApiConfiguration {
-  rootUrl: string = 'http://localhost:5076';
+  rootUrl: string = ''; // Set via provideApiConfiguration() in app.config.ts
 }
 

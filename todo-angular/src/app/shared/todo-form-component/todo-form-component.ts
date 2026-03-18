@@ -79,7 +79,12 @@ export class TodoFormComponent {
   dtoValue = computed(() => {
     const { description, date, time, name, status } = this.todoForm()?.value();
 
-    const dueDate = date && time ? this.combineDateAndTime(date, time) : '';
+    let dueDate = '';
+
+    if (date) {
+      if (time) dueDate = this.combineDateAndTime(date, time);
+      else dueDate = date;
+    }
 
     return {
       description,

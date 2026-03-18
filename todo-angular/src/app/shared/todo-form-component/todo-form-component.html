@@ -1,8 +1,6 @@
-<h1>Todo Form</h1>
-
 <div class="form-content">
   <mat-form-field>
-    <mat-label>Name</mat-label>
+    <mat-label>Name of Todo</mat-label>
     <input matInput type="name" [formField]="todoForm.name" />
     <div class="error">
       @if (todoForm.name().touched() && todoForm.name().invalid()) {

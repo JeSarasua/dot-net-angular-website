@@ -3,11 +3,13 @@ using System.Text.Json.Serialization;
 using Asp.Versioning;
 using back_end.DbContexts;
 using back_end.Models;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
 var frontEndDevelopmentPolicy = "Angular Frontend Development";
+var frontEndProductionPolicy = "Angular Frontend Production";
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,7 +19,11 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy(frontEndDevelopmentPolicy, policy =>
     {
-        policy.WithOrigins("http://localhost:4200").AllowAnyMethod().AllowAnyHeader().WithExposedHeaders("X-Pagination");;
+        policy.WithOrigins("http://localhost:4200").AllowAnyMethod().AllowAnyHeader().WithExposedHeaders("X-Pagination"); ;
+    });
+    options.AddPolicy(frontEndProductionPolicy, policy =>
+    {
+        policy.WithOrigins("https://red-forest-0dee89c1e.1.azurestaticapps.net").AllowAnyMethod().AllowAnyHeader().WithExposedHeaders("X-Pagination");
     });
 });
 
@@ -76,7 +82,7 @@ builder.Services.AddSwaggerGen(setupAction =>
 });
 
 builder.Services.AddDbContext<TodoContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("TodoDb"))
+    options.UseNpgsql(builder.Configuration.GetConnectionString("TodoDb"))
 );
 
 builder.Services.AddScoped<ITodoRepository, TodoRepository>();
@@ -103,6 +109,11 @@ builder.Services.AddApiVersioning(setupAction =>
     setupAction.DefaultApiVersion = new ApiVersion(1, 0);
 }).AddMvc();
 
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+});
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
@@ -111,6 +122,12 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+else
+{
+    app.UseCors(frontEndProductionPolicy);
+}
+
+app.UseForwardedHeaders();
 
 app.UseHttpsRedirection();
 

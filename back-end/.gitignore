@@ -3,6 +3,8 @@ cache
 *.pdb
 *.nupkg
 back-end
+publish
+publish.zip
 
 [Oo]bj/
 [Bb]in/
