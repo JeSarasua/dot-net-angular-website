@@ -6,6 +6,11 @@ namespace back_end.Entities;
 
 public class Todo
 {
+    public Todo()
+    {
+        CreatedDate = DateTimeOffset.UtcNow;
+    }
+
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int Id { get; set; }
