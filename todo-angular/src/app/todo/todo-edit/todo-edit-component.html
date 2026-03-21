@@ -2,8 +2,10 @@
   <h1>Todo Edit</h1>
 </div>
 
-@if (!todoInfo()) {
+@if (!!todoError()) {
   <error-state [problem]="todoError()" />
+} @else if (todoLoading()) {
+  <centered-spinner />
 } @else {
   <mat-card class="todo-card" appearance="outlined">
     <mat-card-actions>
@@ -19,7 +21,7 @@
       <todo-form-component [initialTodo]="todoInfo()" />
     </mat-card-content>
     <mat-card-actions>
-      <button (click)="onUpdate()" matButton>
+      <button (click)="onUpdate()" matButton [disabled]="!formValid()">
         Confirm
         <mat-icon>check</mat-icon>
       </button>

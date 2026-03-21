@@ -2,7 +2,7 @@ import { Component, computed, inject, input, viewChild } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { CenteredSpinnerComponent } from '../../shared/centered-spinner/centered-spinner.component';
 import { Router } from '@angular/router';
 import { TodoFormComponent } from '../../shared/todo-form-component/todo-form-component';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -17,7 +17,7 @@ import { ErrorStateComponent } from '../../shared/error-state/error-state.compon
     MatCardModule,
     MatButtonModule,
     MatIconModule,
-    MatProgressSpinnerModule,
+    CenteredSpinnerComponent,
     TodoFormComponent,
     ErrorStateComponent,
   ],
@@ -39,13 +39,14 @@ export class TodoEditComponent {
   todoResource = this.#todoService.todoResource(this.id);
 
   todoError = computed(() => this.todoResource.error());
-
+  todoLoading = computed(() => this.todoResource.isLoading());
   todoInfo = computed(() => {
     if (this.todoResource.error()) return undefined;
     return this.todoResource.value();
   });
 
   todoForm = viewChild(TodoFormComponent);
+  formValid = computed(() => this.todoForm()?.todoForm().valid() ?? false);
 
   trigger$ = new Subject<ApiTodoIdPut$Params>();
 

@@ -1,21 +1,19 @@
 .mat-mdc-table {
   border-spacing: 0 16px;
+  table-layout: fixed;
+  width: 100%;
 }
 
 .mat-mdc-row {
   height: 80px;
   background: #d2d8c0;
   cursor: pointer;
-
-  .mat-mdc-cell:first-child {
-    border-radius: 20px 0 0 20px;
-  }
-
-  .mat-mdc-cell:last-child {
-    border-radius: 0 20px 20px 0;
-  }
+  transition:
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
 }
 
 .mat-mdc-row:hover {
-  background-color: rgba(200, 0, 40, 0.04);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+  transform: translateY(-4px) scale(1.01);
 }

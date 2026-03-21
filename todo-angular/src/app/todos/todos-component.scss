@@ -1,0 +1,24 @@
+:host {
+  display: block;
+  margin-left: 10px;
+  margin-right: 10px;
+}
+
+.header {
+  padding-top: 20px;
+}
+
+.action-items {
+  display: flex;
+  justify-content: space-between;
+}
+
+.create-btn {
+  font-size: 18px;
+  height: 48px;
+}
+
+.create-btn mat-icon {
+  font-size: 24px;
+  width: 24px;
+}

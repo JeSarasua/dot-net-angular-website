@@ -1,4 +1,4 @@
-import { Component, output, signal, computed, effect, inject } from '@angular/core';
+import { Component, computed, effect, inject, untracked, linkedSignal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
@@ -51,28 +51,36 @@ export class StatusFilterComponent {
   #activatedRoute = inject(ActivatedRoute);
 
   statuses: TodoStatus[] = ['ToDo', 'InProgress', 'Completed', 'Archived'];
-  selectedStatuses = signal<Set<TodoStatus>>(new Set(this.statuses));
 
-  statusesChanged = output<TodoStatus[]>();
+  selectedStatuses = linkedSignal<Set<TodoStatus>>(() => {
+    const statusesParam = this.#activatedRoute.snapshot.queryParamMap.get('statuses');
+    if (!statusesParam) {
+      return new Set([]);
+    }
+    const parsed = statusesParam
+      .split(',')
+      .filter((s): s is TodoStatus => this.statuses.includes(s as TodoStatus));
+    return new Set(parsed);
+  });
 
   allSelected = computed(() => this.selectedStatuses().size === this.statuses.length);
-  someSelected = computed(() => {
-    const size = this.selectedStatuses().size;
-    return size > 0 && size < this.statuses.length;
-  });
+  noneSelected = computed(() => this.selectedStatuses().size === 0);
+  someSelected = computed(() => !this.allSelected() && !this.noneSelected());
 
   constructor() {
     effect(() => {
       const statusString = Array.from(this.selectedStatuses()).join(',');
 
-      this.#router.navigate([], {
-        relativeTo: this.#activatedRoute,
-        queryParams: {
-          statuses: statusString,
-          pageNumber: 1,
-        },
-        queryParamsHandling: 'merge',
-        replaceUrl: true,
+      untracked(() => {
+        this.#router.navigate([], {
+          relativeTo: this.#activatedRoute,
+          queryParams: {
+            statuses: this.allSelected() || this.noneSelected() ? undefined : statusString,
+            pageNumber: 1,
+          },
+          queryParamsHandling: 'merge',
+          replaceUrl: true,
+        });
       });
     });
   }

@@ -3,7 +3,7 @@ import { TodoService } from '../shared/services/todo-service';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { CenteredSpinnerComponent } from '../shared/centered-spinner/centered-spinner.component';
 import { DatePipe } from '@angular/common';
 import { STATUS_ICONS } from '../shared/icons/status-icons';
 import { Router } from '@angular/router';
@@ -18,7 +18,7 @@ import { ErrorStateComponent } from '../shared/error-state/error-state.component
     MatCardModule,
     MatButtonModule,
     MatIconModule,
-    MatProgressSpinnerModule,
+    CenteredSpinnerComponent,
     DatePipe,
     ErrorStateComponent,
   ],

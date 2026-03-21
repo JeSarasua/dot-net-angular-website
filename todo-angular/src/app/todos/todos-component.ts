@@ -3,12 +3,12 @@ import { ColumnDef, TableComponent } from '../shared/table/table-component';
 import { TodoService } from '../shared/services/todo-service';
 import { getRelativeTime } from '../utils/get-relative-time';
 import { Router } from '@angular/router';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { SearchComponent } from '../shared/table/search-component/search-component';
 import { DEFAULT_PAGE_SIZE, DEFAULT_TOTAL_COUNT, FIRST_PAGE } from '../shared/consts/query-param';
 import { StatusFilterComponent } from '../shared/table/status-filter/status-filter.component';
+import { getRowStyle } from '../utils/get-row-style';
 
 export type TodoRowData = {
   id: number;
@@ -34,41 +34,9 @@ const PAGINATION_RESPONSE_HEADER = 'X-Pagination';
 
 @Component({
   selector: 'todos-component',
-  imports: [TableComponent, MatProgressSpinnerModule, MatButton, MatIcon, SearchComponent],
+  imports: [TableComponent, MatButton, MatIcon, SearchComponent],
   templateUrl: 'todos-component.html',
-  styles: `
-    :host {
-      display: block;
-      margin-left: 10px;
-      margin-right: 10px;
-    }
-
-    .header {
-      padding-top: 20px;
-    }
-
-    .action-items {
-      display: flex;
-      justify-content: space-between;
-    }
-
-    .spinner {
-      height: 100%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-
-    .create-btn {
-      font-size: 18px;
-      height: 48px;
-    }
-
-    .create-btn mat-icon {
-      font-size: 24px;
-      width: 24px;
-    }
-  `,
+  styleUrl: 'todos-component.scss',
 })
 export class TodosComponent {
   pageNumber = input<string>();
@@ -83,8 +51,14 @@ export class TodosComponent {
   #router = inject(Router);
 
   readonly columnDefs = COLUMN_DEFS;
-  dataSource = computed(() =>
-    this.todoResource.value().map(
+  rowStyleFn = getRowStyle;
+
+  isLoading = computed(() => this.todoResource.isLoading());
+  error = computed(() => this.todoResource.error());
+
+  dataSource = computed(() => {
+    if (this.error() || this.isLoading()) return [];
+    return this.todoResource.value().map(
       (todo) =>
         ({
           id: todo.id,
@@ -92,8 +66,8 @@ export class TodosComponent {
           status: todo.status,
           dueDate: todo.dueDate ? getRelativeTime(todo.dueDate) : '',
         }) as TodoRowData,
-    ),
-  );
+    );
+  });
 
   _pageNumber = computed(() => Number(this.pageNumber()) || FIRST_PAGE);
   _pageSize = computed(() => Number(this.pageSize()) || DEFAULT_PAGE_SIZE);
@@ -103,6 +77,7 @@ export class TodosComponent {
   _statuses = computed(() => this.statuses() ?? '');
 
   totalCount = computed(() => {
+    if (this.error() || this.isLoading()) return DEFAULT_TOTAL_COUNT;
     const header = this.todoResource.headers()?.get(PAGINATION_RESPONSE_HEADER);
     return header
       ? (JSON.parse(header) as PaginationHeaderInfo).TotalItemCount

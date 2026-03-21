@@ -14,7 +14,6 @@ import { ApiConfiguration } from '../../api/api-configuration';
 import { TodoDto } from '../../api/models';
 import { StrictHttpResponse } from '../../api/strict-http-response';
 import { Observable } from 'rxjs';
-import { DEFAULT_PAGE_SIZE, FIRST_PAGE } from '../consts/query-param';
 
 @Injectable({
   providedIn: 'root',
@@ -23,28 +22,34 @@ export class TodoService {
   #rootUrl = inject(ApiConfiguration).rootUrl;
   #httpClient = inject(HttpClient);
 
-  pageNumber = signal(FIRST_PAGE);
-  pageSize = signal(DEFAULT_PAGE_SIZE);
+  pageNumber = signal<number | undefined>(undefined);
+  pageSize = signal<number | undefined>(undefined);
   searchQuery = signal('');
-  sortBy = signal('name');
-  sortOrder = signal('asc');
+  sortBy = signal('');
+  sortOrder = signal('');
   statuses = signal('');
 
-  // FIXME: Handle double fetch when initial page size is set
   todosResource = () =>
     httpResource<TodoDto[]>(
-      () => ({
-        url: `${this.#rootUrl}${apiTodoGet.PATH}`,
-        method: 'GET',
-        params: {
-          ...(this.pageNumber() && { pageNumber: this.pageNumber() }),
-          ...(this.pageSize() && { pageSize: this.pageSize() }),
-          ...(this.searchQuery() && { searchQuery: this.searchQuery() }),
-          ...(this.sortBy() && { sortBy: this.sortBy() }),
-          ...(this.sortOrder() && { sortOrder: this.sortOrder() }),
-          ...(this.statuses() && { statuses: this.statuses() }),
-        },
-      }),
+      () => {
+        const pageNumber = this.pageNumber();
+        const pageSize = this.pageSize();
+
+        // Don't fetch until pageNumber and pageSize have been set
+        if (!pageNumber || !pageSize) return undefined;
+        return {
+          url: `${this.#rootUrl}${apiTodoGet.PATH}`,
+          method: 'GET',
+          params: {
+            pageNumber,
+            pageSize,
+            searchQuery: this.searchQuery() ?? undefined,
+            sortBy: this.sortBy() ?? undefined,
+            sortOrder: this.sortOrder() ?? undefined,
+            statuses: this.statuses() ?? undefined,
+          },
+        };
+      },
       {
         defaultValue: [],
       },

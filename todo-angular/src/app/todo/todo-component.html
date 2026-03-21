@@ -12,7 +12,7 @@
   @if (!!todoError()) {
     <error-state [problem]="todoError()" />
   } @else if (todoResource.isLoading()) {
-    <mat-spinner [diameter]="140" />
+    <centered-spinner />
   } @else if (todoInfo(); as todo) {
     <mat-card-header>
       <div mat-card-avatar>

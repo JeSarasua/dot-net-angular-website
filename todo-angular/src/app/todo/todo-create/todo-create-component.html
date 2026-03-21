@@ -2,23 +2,29 @@
   <h1>Todo Create</h1>
 </div>
 
-<mat-card class="todo-card" appearance="outlined">
-  <mat-card-actions>
-    <button (click)="onBack()" matButton>
-      Back
-      <mat-icon>arrow_back</mat-icon>
-    </button>
-  </mat-card-actions>
-  <mat-card-header>
-    <h1>Create</h1>
-  </mat-card-header>
-  <mat-card-content>
-    <todo-form-component />
-  </mat-card-content>
-  <mat-card-actions>
-    <button (click)="createTodo()" matButton>
-      Create
-      <mat-icon>check</mat-icon>
-    </button>
-  </mat-card-actions>
-</mat-card>
+@if (error()) {
+  <error-state [problem]="error()" />
+} @else if (isLoading()) {
+  <centered-spinner />
+} @else {
+  <mat-card class="todo-card" appearance="outlined">
+    <mat-card-actions>
+      <button (click)="onBack()" matButton>
+        Back
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+    </mat-card-actions>
+    <mat-card-header>
+      <h1>Create</h1>
+    </mat-card-header>
+    <mat-card-content>
+      <todo-form-component />
+    </mat-card-content>
+    <mat-card-actions>
+      <button (click)="createTodo()" matButton [disabled]="!formValid()">
+        Create
+        <mat-icon>check</mat-icon>
+      </button>
+    </mat-card-actions>
+  </mat-card>
+}

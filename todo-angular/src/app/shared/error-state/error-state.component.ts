@@ -87,7 +87,7 @@ const DEFAULT_ICON = 'error_outline';
   `,
 })
 export class ErrorStateComponent {
-  problem = input<Error | ProblemDetails>();
+  problem = input<Error | HttpErrorResponse | ProblemDetails>();
   actionLabel = input<string>();
   actionLink = input<string>();
 
