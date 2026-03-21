@@ -26,7 +26,6 @@ export class PaginateViaUrl {
   #host: TablePaginatorComponent;
   #router = inject(Router);
   #activatedRoute = inject(ActivatedRoute);
-  readonly PAGE_ONE = 1;
 
   constructor(host: TablePaginatorComponent) {
     this.#host = host;
@@ -42,10 +41,7 @@ export class PaginateViaUrl {
     this.#router.navigate([], {
       relativeTo: this.#activatedRoute,
       queryParams: {
-        pageNumber:
-          this.#host.pageSize() === $event.pageSize
-            ? this.#host.pageNumber() + diff
-            : this.PAGE_ONE, // Reset to first page if page size changed
+        pageNumber: this.#host.pageSize() === $event.pageSize ? this.#host.pageNumber() + diff : 1, // Reset to first page if page size changed
         pageSize: $event.pageSize,
       },
       queryParamsHandling: 'merge',

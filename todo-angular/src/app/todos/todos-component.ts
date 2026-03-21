@@ -6,6 +6,8 @@ import { Router } from '@angular/router';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
+import { SearchComponent } from '../shared/table/search-component/search-component';
+import { DEFAULT_PAGE_SIZE, DEFAULT_TOTAL_COUNT, FIRST_PAGE } from '../shared/consts/query-param';
 
 export type TodoRowData = {
   id: number;
@@ -31,13 +33,22 @@ const PAGINATION_RESPONSE_HEADER = 'X-Pagination';
 
 @Component({
   selector: 'todos-component',
-  imports: [TableComponent, MatProgressSpinnerModule, MatButton, MatIcon],
+  imports: [TableComponent, MatProgressSpinnerModule, MatButton, MatIcon, SearchComponent],
   templateUrl: 'todos-component.html',
   styles: `
+    :host {
+      display: block;
+      margin-left: 10px;
+      margin-right: 10px;
+    }
+
     .header {
+      padding-top: 20px;
+    }
+
+    .action-items {
       display: flex;
       justify-content: space-between;
-      padding: 20px 30px 0px 10px;
     }
 
     .spinner {
@@ -59,17 +70,13 @@ const PAGINATION_RESPONSE_HEADER = 'X-Pagination';
   `,
 })
 export class TodosComponent {
-  searchQuery = signal('');
   pageNumber = input<string>();
   pageSize = input<string>();
+  searchQuery = input<string>();
 
   #todoService = inject(TodoService);
   todoResource = this.#todoService.todosResource();
   #router = inject(Router);
-
-  readonly FIRST_PAGE = 1;
-  readonly DEFAULT_PAGE_SIZE = 20;
-  readonly DEFAULT_TOTAL_COUNT = 100;
 
   readonly columnDefs = COLUMN_DEFS;
   dataSource = computed(() =>
@@ -84,31 +91,38 @@ export class TodosComponent {
     ),
   );
 
-  pNumber = computed(() => (this.pageNumber() ? Number(this.pageNumber()) : this.FIRST_PAGE));
-  pSize = computed(() => (this.pageSize() ? Number(this.pageSize()) : this.DEFAULT_PAGE_SIZE));
+  pNumber = computed(() => (this.pageNumber() ? Number(this.pageNumber()) : FIRST_PAGE));
+  pSize = computed(() => (this.pageSize() ? Number(this.pageSize()) : DEFAULT_PAGE_SIZE));
+  sQuery = computed(() => (this.searchQuery() ? this.searchQuery() : ''));
 
   totalCount = computed(() => {
     const header = this.todoResource.headers()?.get(PAGINATION_RESPONSE_HEADER);
     return header
       ? (JSON.parse(header) as PaginationHeaderInfo).TotalItemCount
-      : this.DEFAULT_TOTAL_COUNT;
+      : DEFAULT_TOTAL_COUNT;
   });
 
   constructor() {
     effect(() => {
       let pageNumber = this.pNumber();
       let pageSize = this.pSize();
+      let searchQuery = this.sQuery();
 
       if (!pageNumber) {
-        pageNumber = 1;
+        pageNumber = FIRST_PAGE;
       }
 
       if (!pageSize) {
-        pageSize = 20;
+        pageSize = DEFAULT_PAGE_SIZE;
+      }
+
+      if (!searchQuery) {
+        searchQuery = '';
       }
 
       this.#todoService.pageNumber.set(pageNumber);
       this.#todoService.pageSize.set(pageSize);
+      this.#todoService.searchQuery.set(searchQuery);
     });
   }
 

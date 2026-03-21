@@ -1,4 +1,4 @@
-import { Component, inject, input, viewChild } from '@angular/core';
+import { Component, computed, inject, input, viewChild } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
@@ -9,6 +9,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { catchError, of, Subject, switchMap, tap } from 'rxjs';
 import { ApiTodoIdPut$Params } from '../../api/functions';
 import { TodoService } from '../../shared/services/todo-service';
+import { ErrorStateComponent } from '../../shared/error-state/error-state.component';
 
 @Component({
   selector: 'todo-edit-component',
@@ -18,6 +19,7 @@ import { TodoService } from '../../shared/services/todo-service';
     MatIconModule,
     MatProgressSpinnerModule,
     TodoFormComponent,
+    ErrorStateComponent,
   ],
   templateUrl: './todo-edit-component.html',
   styles: `
@@ -35,7 +37,13 @@ export class TodoEditComponent {
   #router = inject(Router);
   #todoService = inject(TodoService);
   todoResource = this.#todoService.todoResource(this.id);
-  todoInfo = this.todoResource.value;
+
+  todoError = computed(() => this.todoResource.error());
+
+  todoInfo = computed(() => {
+    if (this.todoResource.error()) return undefined;
+    return this.todoResource.value();
+  });
 
   todoForm = viewChild(TodoFormComponent);
 

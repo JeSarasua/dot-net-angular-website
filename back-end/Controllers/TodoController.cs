@@ -12,7 +12,7 @@ namespace back_end
     [Consumes("application/json")]
     [Authorize]
     [Route("api/todo")]
-    public class TodoController : ControllerBase
+    public class TodoController : BaseController
     {
         private ITodoRepository _todoRepository;
         private readonly IMapper _mapper;
@@ -58,7 +58,7 @@ namespace back_end
             var todo = await _todoRepository.GetTodoAsync(id);
             if (todo == null)
             {
-                return NotFound();
+                return NotFoundProblem("Todo", id);
             }
             var todoDto = _mapper.Map<TodoDto>(todo);
             return Ok(todoDto);
@@ -100,7 +100,7 @@ namespace back_end
         {
             if (!await _todoRepository.TodoExistsAsync(id))
             {
-                return NotFound();
+                return NotFoundProblem("Todo", id);
             }
 
             var todo = await _todoRepository.GetTodoAsync(id);
@@ -126,7 +126,7 @@ namespace back_end
         {
             if (!await _todoRepository.TodoExistsAsync(id))
             {
-                return NotFound();
+                return NotFoundProblem("Todo", id);
             }
             var todo = await _todoRepository.GetTodoAsync(id);
 
@@ -166,7 +166,7 @@ namespace back_end
             var todo = await _todoRepository.GetTodoAsync(id);
             if (todo == null)
             {
-                return NotFound();
+                return NotFoundProblem("Todo", id);
             }
 
             _todoRepository.DeleteTodo(todo);

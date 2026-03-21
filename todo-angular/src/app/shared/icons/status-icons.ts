@@ -5,5 +5,4 @@ export const STATUS_ICONS: Record<TodoStatus, string> = {
   InProgress: 'pending',
   Completed: 'check_circle',
   Archived: 'archive',
-  Deleted: 'delete',
 };

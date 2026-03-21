@@ -10,6 +10,5 @@ export const TODO_STATUS: TodoStatus[] = [
   'ToDo',
   'InProgress',
   'Completed',
-  'Archived',
-  'Deleted'
+  'Archived'
 ];

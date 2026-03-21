@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, input } from '@angular/core';
+import { Component, computed, DestroyRef, inject, input } from '@angular/core';
 import { TodoService } from '../shared/services/todo-service';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -10,10 +10,18 @@ import { Router } from '@angular/router';
 import { catchError, of, tap } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ApiTodoIdDelete$Params } from '../api/functions';
+import { ErrorStateComponent } from '../shared/error-state/error-state.component';
 
 @Component({
   selector: 'todo-component',
-  imports: [MatCardModule, MatButtonModule, MatIconModule, MatProgressSpinnerModule, DatePipe],
+  imports: [
+    MatCardModule,
+    MatButtonModule,
+    MatIconModule,
+    MatProgressSpinnerModule,
+    DatePipe,
+    ErrorStateComponent,
+  ],
   templateUrl: 'todo-component.html',
   styles: `
     .header {
@@ -32,6 +40,7 @@ export class TodoComponent {
   #destroyRef = inject(DestroyRef);
 
   todoResource = this.#todoService.todoResource(this.id);
+  todoError = computed(() => this.todoResource.error());
 
   statusIcons = STATUS_ICONS;
   todoInfo = this.todoResource.value;

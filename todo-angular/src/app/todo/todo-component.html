@@ -9,7 +9,9 @@
       <mat-icon>arrow_back</mat-icon>
     </button>
   </mat-card-actions>
-  @if (todoResource.isLoading()) {
+  @if (!!todoError()) {
+    <error-state [problem]="todoError()" />
+  } @else if (todoResource.isLoading()) {
     <mat-spinner [diameter]="140" />
   } @else if (todoInfo(); as todo) {
     <mat-card-header>
@@ -39,5 +41,7 @@
         <mat-icon>delete</mat-icon>
       </button>
     </mat-card-actions>
+  } @else {
+    <error-state />
   }
 </mat-card>

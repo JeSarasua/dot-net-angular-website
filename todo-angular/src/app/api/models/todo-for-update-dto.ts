@@ -4,7 +4,7 @@
 import { TodoStatus } from '../models/todo-status';
 export interface TodoForUpdateDto {
   description?: string | null;
-  dueDate?: string;
+  dueDate?: string | null;
   name: string;
   status: TodoStatus;
 }

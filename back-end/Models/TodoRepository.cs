@@ -33,7 +33,9 @@ public class TodoRepository : ITodoRepository
         if (!string.IsNullOrWhiteSpace(searchQuery))
         {
             searchQuery = searchQuery.Trim();
-            todos = todos.Where(todo => todo.Name.Contains(searchQuery) || (todo.Description != null && todo.Description.Contains(searchQuery)));
+            todos = todos.Where(todo =>
+                EF.Functions.ILike(todo.Name, $"%{searchQuery}%") ||
+                (todo.Description != null && EF.Functions.ILike(todo.Description, $"%{searchQuery}%")));
         }
 
         var totalItemCount = await todos.CountAsync();

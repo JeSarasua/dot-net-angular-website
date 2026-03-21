@@ -14,6 +14,7 @@ import { ApiConfiguration } from '../../api/api-configuration';
 import { TodoDto } from '../../api/models';
 import { StrictHttpResponse } from '../../api/strict-http-response';
 import { Observable } from 'rxjs';
+import { DEFAULT_PAGE_SIZE, FIRST_PAGE } from '../consts/query-param';
 
 @Injectable({
   providedIn: 'root',
@@ -22,11 +23,9 @@ export class TodoService {
   #rootUrl = inject(ApiConfiguration).rootUrl;
   #httpClient = inject(HttpClient);
 
-  readonly DEFAULT_PAGE = 1;
-  readonly DEFAULT_PAGE_SIZE = 20;
-
-  pageNumber = signal(this.DEFAULT_PAGE);
-  pageSize = signal(this.DEFAULT_PAGE_SIZE);
+  pageNumber = signal(FIRST_PAGE);
+  pageSize = signal(DEFAULT_PAGE_SIZE);
+  searchQuery = signal('');
 
   // FIXME: Handle double fetch when initial page size is set
   todosResource = () =>
@@ -34,7 +33,11 @@ export class TodoService {
       () => ({
         url: `${this.#rootUrl}${apiTodoGet.PATH}`,
         method: 'GET',
-        params: { pageNumber: this.pageNumber(), pageSize: this.pageSize() },
+        params: {
+          ...(this.pageNumber() && { pageNumber: this.pageNumber() }),
+          ...(this.pageSize() && { pageSize: this.pageSize() }),
+          ...(this.searchQuery() && { searchQuery: this.searchQuery() }),
+        },
       }),
       {
         defaultValue: [],

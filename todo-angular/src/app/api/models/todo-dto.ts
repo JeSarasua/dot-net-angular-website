@@ -5,7 +5,7 @@ import { TodoStatus } from '../models/todo-status';
 export interface TodoDto {
   createdDate?: string;
   description?: string | null;
-  dueDate?: string;
+  dueDate?: string | null;
   id: number;
   name: string;
   status: TodoStatus;

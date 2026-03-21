@@ -6,5 +6,4 @@ public enum TodoStatus
     InProgress,
     Completed,
     Archived,
-    Deleted,
 }
