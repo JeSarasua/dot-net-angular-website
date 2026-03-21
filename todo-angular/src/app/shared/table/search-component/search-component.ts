@@ -10,18 +10,38 @@ import { ActivatedRoute, Router } from '@angular/router';
   selector: 'search-component',
   imports: [MatButtonModule, MatIconModule, MatInputModule, MatFormFieldModule, FormField],
   template: `
-    <mat-form-field>
+    <mat-form-field subscriptSizing="dynamic">
       <mat-label>Search</mat-label>
       <input matInput type="search" [formField]="searchForm" (keyup.enter)="onSearch()" />
-      @if (searchForm().value()) {
-        <button mat-icon-button matSuffix (click)="onClear()">
-          <mat-icon>close</mat-icon>
+      <div matSuffix class="search-actions">
+        @if (searchForm().value()) {
+          <button mat-icon-button (click)="onClear()">
+            <mat-icon>close</mat-icon>
+          </button>
+        }
+        <button mat-icon-button (click)="onSearch()">
+          <mat-icon>search</mat-icon>
         </button>
-      }
-      <button mat-icon-button matSuffix (click)="onSearch()">
-        <mat-icon>search</mat-icon>
-      </button>
+      </div>
     </mat-form-field>
+  `,
+  styles: `
+    :host {
+      display: block;
+      flex: 1;
+      min-width: 0;
+    }
+
+    mat-form-field {
+      width: 100%;
+      min-width: 150px;
+    }
+
+    .search-actions {
+      display: flex;
+      flex-direction: row;
+      flex-shrink: 0;
+    }
   `,
 })
 export class SearchComponent {
