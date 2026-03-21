@@ -17,8 +17,8 @@
   <table-component
     [dataSource]="dataSource()"
     [columnDefs]="columnDefs"
-    [pageSize]="pSize()"
-    [pageNumber]="pNumber()"
+    [pageSize]="_pageSize()"
+    [pageNumber]="_pageNumber()"
     [totalCount]="totalCount()"
     (rowClicked)="handleRowClicked($event)"
   />

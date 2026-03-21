@@ -31,14 +31,13 @@ namespace back_end
         /// <returns>A collection of Todo items.</returns>
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<ActionResult<IEnumerable<TodoDto>>> GetTodos(
-            string? name, string? searchQuery, int pageNumber = 1, int pageSize = 10)
+        public async Task<ActionResult<IEnumerable<TodoDto>>> GetTodos([FromQuery] TodoQueryParameters query)
         {
-            if (pageSize > MAX_TODOS_PAGE_SIZE)
+            if (query.PageSize > MAX_TODOS_PAGE_SIZE)
             {
-                pageSize = MAX_TODOS_PAGE_SIZE;
+                query.PageSize = MAX_TODOS_PAGE_SIZE;
             }
-            var (todos, PaginationMetadata) = await _todoRepository.GetTodosAsync(name, searchQuery, pageNumber, pageSize);
+            var (todos, PaginationMetadata) = await _todoRepository.GetTodosAsync(query);
             Response.Headers.Append("X-Pagination", JsonSerializer.Serialize(PaginationMetadata));
 
             return Ok(_mapper.Map<IEnumerable<TodoDto>>(todos));

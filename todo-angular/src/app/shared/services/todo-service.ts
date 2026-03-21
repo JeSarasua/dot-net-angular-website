@@ -26,6 +26,9 @@ export class TodoService {
   pageNumber = signal(FIRST_PAGE);
   pageSize = signal(DEFAULT_PAGE_SIZE);
   searchQuery = signal('');
+  sortBy = signal('name');
+  sortOrder = signal('asc');
+  statuses = signal('');
 
   // FIXME: Handle double fetch when initial page size is set
   todosResource = () =>
@@ -37,6 +40,9 @@ export class TodoService {
           ...(this.pageNumber() && { pageNumber: this.pageNumber() }),
           ...(this.pageSize() && { pageSize: this.pageSize() }),
           ...(this.searchQuery() && { searchQuery: this.searchQuery() }),
+          ...(this.sortBy() && { sortBy: this.sortBy() }),
+          ...(this.sortOrder() && { sortOrder: this.sortOrder() }),
+          ...(this.statuses() && { statuses: this.statuses() }),
         },
       }),
       {

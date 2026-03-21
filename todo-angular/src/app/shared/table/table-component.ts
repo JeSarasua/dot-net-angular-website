@@ -1,35 +1,57 @@
-import { Component, computed, input, output } from '@angular/core';
+import { Component, computed, input, output, Type } from '@angular/core';
 import { MatTableModule } from '@angular/material/table';
+import { MatSortModule } from '@angular/material/sort';
 import { TablePaginatorComponent } from './table-paginator/table-paginator-component';
+import { SortViaUrl } from './sort-via-url';
+import { NoResultsComponent } from './no-results/no-results-component';
+import { NgComponentOutlet } from '@angular/common';
 
-export type ColumnNameWithKey = {
+export type ColumnDef = {
   header: string;
   key: string;
+  headerSlot?: Type<any>;
 };
 
 @Component({
   selector: 'table-component',
-  imports: [MatTableModule, TablePaginatorComponent],
-  template: ` <table mat-table [dataSource]="dataSource()">
+  imports: [
+    MatTableModule,
+    TablePaginatorComponent,
+    MatSortModule,
+    SortViaUrl,
+    NoResultsComponent,
+    NgComponentOutlet,
+  ],
+  template: `
+    <table mat-table [dataSource]="dataSource()" matSort matSortDisableClear sortViaUrl>
       @for (columnDef of columnDefs(); track columnDef) {
         <ng-container [matColumnDef]="columnDef.key">
-          <th mat-header-cell *matHeaderCellDef i18n>{{ columnDef.header }}</th>
+          <th mat-header-cell *matHeaderCellDef mat-sort-header i18n>
+            {{ columnDef.header }}
+            @if (columnDef.headerSlot) {
+              <ng-container *ngComponentOutlet="columnDef.headerSlot" />
+            }
+          </th>
           <td mat-cell *matCellDef="let element" i18n>{{ element[columnDef.key] }}</td>
         </ng-container>
       }
       <tr mat-header-row *matHeaderRowDef="columnKeys()"></tr>
       <tr mat-row *matRowDef="let row; columns: columnKeys()" (click)="emitRowInfo(row)"></tr>
     </table>
+    @if (dataSource().length === 0) {
+      <no-results-component />
+    }
     <table-paginator-component
       [pageSize]="pageSize()"
       [pageNumber]="pageNumber()"
       [length]="totalCount()"
-    />`,
+    />
+  `,
   styleUrl: './table-component.scss',
 })
 export class TableComponent<T> {
   dataSource = input.required<T[]>();
-  columnDefs = input.required<ColumnNameWithKey[]>();
+  columnDefs = input.required<ColumnDef[]>();
   pageNumber = input.required<number>();
   pageSize = input.required<number>();
   totalCount = input.required<number>();

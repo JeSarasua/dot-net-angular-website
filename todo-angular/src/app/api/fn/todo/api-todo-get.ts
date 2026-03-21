@@ -8,21 +8,28 @@ import { StrictHttpResponse } from '../../strict-http-response';
 import { RequestBuilder } from '../../request-builder';
 
 import { TodoDto } from '../../models/todo-dto';
+import { TodoStatus } from '../../models/todo-status';
 
 export interface ApiTodoGet$Params {
-  name?: string;
-  searchQuery?: string;
-  pageNumber?: number;
-  pageSize?: number;
+  Name?: string;
+  SearchQuery?: string;
+  Statuses?: Array<TodoStatus>;
+  SortBy?: string;
+  SortOrder?: string;
+  PageNumber?: number;
+  PageSize?: number;
 }
 
 export function apiTodoGet(http: HttpClient, rootUrl: string, params?: ApiTodoGet$Params, context?: HttpContext): Observable<StrictHttpResponse<Array<TodoDto>>> {
   const rb = new RequestBuilder(rootUrl, apiTodoGet.PATH, 'get');
   if (params) {
-    rb.query('name', params.name, {});
-    rb.query('searchQuery', params.searchQuery, {});
-    rb.query('pageNumber', params.pageNumber, {});
-    rb.query('pageSize', params.pageSize, {});
+    rb.query('Name', params.Name, {});
+    rb.query('SearchQuery', params.SearchQuery, {});
+    rb.query('Statuses', params.Statuses, {"style":"form","explode":false});
+    rb.query('SortBy', params.SortBy, {});
+    rb.query('SortOrder', params.SortOrder, {});
+    rb.query('PageNumber', params.PageNumber, {});
+    rb.query('PageSize', params.PageSize, {});
   }
 
   return http.request(

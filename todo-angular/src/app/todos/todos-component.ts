@@ -1,5 +1,5 @@
-import { Component, computed, effect, inject, input, signal } from '@angular/core';
-import { ColumnNameWithKey, TableComponent } from '../shared/table/table-component';
+import { Component, computed, effect, inject, input } from '@angular/core';
+import { ColumnDef, TableComponent } from '../shared/table/table-component';
 import { TodoService } from '../shared/services/todo-service';
 import { getRelativeTime } from '../utils/get-relative-time';
 import { Router } from '@angular/router';
@@ -8,12 +8,13 @@ import { MatButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { SearchComponent } from '../shared/table/search-component/search-component';
 import { DEFAULT_PAGE_SIZE, DEFAULT_TOTAL_COUNT, FIRST_PAGE } from '../shared/consts/query-param';
+import { StatusFilterComponent } from '../shared/table/status-filter/status-filter.component';
 
 export type TodoRowData = {
   id: number;
   name: string;
   status: string;
-  due: string;
+  dueDate: string;
 };
 
 type PaginationHeaderInfo = {
@@ -23,10 +24,10 @@ type PaginationHeaderInfo = {
   CurrentPage: number;
 };
 
-const COLUMN_DEFS: ColumnNameWithKey[] = [
+const COLUMN_DEFS: ColumnDef[] = [
   { header: 'Name', key: 'name' },
-  { header: 'Status', key: 'status' },
-  { header: 'Due', key: 'due' },
+  { header: 'Status', key: 'status', headerSlot: StatusFilterComponent },
+  { header: 'Due', key: 'dueDate' },
 ];
 
 const PAGINATION_RESPONSE_HEADER = 'X-Pagination';
@@ -73,6 +74,9 @@ export class TodosComponent {
   pageNumber = input<string>();
   pageSize = input<string>();
   searchQuery = input<string>();
+  sortBy = input<string>();
+  sortOrder = input<string>();
+  statuses = input<string>();
 
   #todoService = inject(TodoService);
   todoResource = this.#todoService.todosResource();
@@ -86,14 +90,17 @@ export class TodosComponent {
           id: todo.id,
           name: todo.name,
           status: todo.status,
-          due: todo.dueDate ? getRelativeTime(todo.dueDate) : '',
+          dueDate: todo.dueDate ? getRelativeTime(todo.dueDate) : '',
         }) as TodoRowData,
     ),
   );
 
-  pNumber = computed(() => (this.pageNumber() ? Number(this.pageNumber()) : FIRST_PAGE));
-  pSize = computed(() => (this.pageSize() ? Number(this.pageSize()) : DEFAULT_PAGE_SIZE));
-  sQuery = computed(() => (this.searchQuery() ? this.searchQuery() : ''));
+  _pageNumber = computed(() => Number(this.pageNumber()) || FIRST_PAGE);
+  _pageSize = computed(() => Number(this.pageSize()) || DEFAULT_PAGE_SIZE);
+  _searchQuery = computed(() => this.searchQuery() ?? '');
+  _sortBy = computed(() => this.sortBy() ?? 'name');
+  _sortOrder = computed(() => this.sortOrder() ?? 'asc');
+  _statuses = computed(() => this.statuses() ?? '');
 
   totalCount = computed(() => {
     const header = this.todoResource.headers()?.get(PAGINATION_RESPONSE_HEADER);
@@ -104,9 +111,12 @@ export class TodosComponent {
 
   constructor() {
     effect(() => {
-      let pageNumber = this.pNumber();
-      let pageSize = this.pSize();
-      let searchQuery = this.sQuery();
+      let pageNumber = this._pageNumber();
+      let pageSize = this._pageSize();
+      let searchQuery = this._searchQuery();
+      let sortBy = this._sortBy();
+      let sortOrder = this._sortOrder();
+      let statuses = this._statuses();
 
       if (!pageNumber) {
         pageNumber = FIRST_PAGE;
@@ -123,6 +133,9 @@ export class TodosComponent {
       this.#todoService.pageNumber.set(pageNumber);
       this.#todoService.pageSize.set(pageSize);
       this.#todoService.searchQuery.set(searchQuery);
+      this.#todoService.sortBy.set(sortBy);
+      this.#todoService.sortOrder.set(sortOrder);
+      this.#todoService.statuses.set(statuses);
     });
   }
 

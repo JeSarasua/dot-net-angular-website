@@ -18,11 +18,25 @@ public class TodoRepository : ITodoRepository
         return await _context.Todos.OrderBy(todo => todo.Name).ToListAsync();
     }
 
-    public async Task<(IEnumerable<Todo>, PaginationMetadata)> GetTodosAsync(string? name, string? searchQuery, int pageNumber, int pageSize)
+    public async Task<(IEnumerable<Todo>, PaginationMetadata)> GetTodosAsync(TodoQueryParameters query)
     {
         var todos = _context.Todos as IQueryable<Todo>;
+        var name = query.Name;
+        var searchQuery = query.SearchQuery;
+        var pageSize = query.PageSize;
+        var pageNumber = query.PageNumber;
+        var statuses = query.Statuses;
+        var sortOrder = query.SortOrder;
+        var sortBy = query.SortBy;
 
-        // FILTERS
+
+        // Status Filter
+        if (query.Statuses != null && query.Statuses.Any())
+        {
+            todos = todos.Where(todo => query.Statuses.Contains(todo.Status));
+        }
+
+        // FILTERS FIXME: This is unused
         if (!string.IsNullOrWhiteSpace(name))
         {
             name = name.Trim();
@@ -38,11 +52,28 @@ public class TodoRepository : ITodoRepository
                 (todo.Description != null && EF.Functions.ILike(todo.Description, $"%{searchQuery}%")));
         }
 
+        // SORTING
+        todos = query.SortBy?.ToLower() switch
+        {
+            "status" => query.SortOrder == "desc"
+                ? todos.OrderByDescending(t => t.Status)
+                : todos.OrderBy(t => t.Status),
+            "duedate" => query.SortOrder == "desc"
+                ? todos.OrderByDescending(t => t.DueDate)
+                : todos.OrderBy(t => t.DueDate),
+            "createddate" => query.SortOrder == "desc"
+                ? todos.OrderByDescending(t => t.CreatedDate)
+                : todos.OrderBy(t => t.CreatedDate),
+            _ => query.SortOrder == "desc"
+                ? todos.OrderByDescending(t => t.Name)
+                : todos.OrderBy(t => t.Name),
+        };
+
         var totalItemCount = await todos.CountAsync();
 
         var PaginationMetadata = new PaginationMetadata(totalItemCount, pageSize, pageNumber);
 
-        var todosToReturn = await todos.OrderBy(todo => todo.Name)
+        var todosToReturn = await todos
             .Skip(pageSize * (pageNumber - 1))
             .Take(pageSize)
             .ToListAsync();
