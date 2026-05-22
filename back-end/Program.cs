@@ -9,6 +9,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
 var frontEndDevelopmentPolicy = "Angular Frontend Development";
+var frontEndStagingPolicy = "Angular Frontend Staging";
 var frontEndProductionPolicy = "Angular Frontend Production";
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,6 +21,10 @@ builder.Services.AddCors(options =>
     options.AddPolicy(frontEndDevelopmentPolicy, policy =>
     {
         policy.WithOrigins("http://localhost:4200").AllowAnyMethod().AllowAnyHeader().WithExposedHeaders("X-Pagination"); ;
+    });
+    options.AddPolicy(frontEndStagingPolicy, policy =>
+    {
+        policy.WithOrigins("https://blue-field-0ce25cd1e.7.azurestaticapps.net").AllowAnyMethod().AllowAnyHeader().WithExposedHeaders("X-Pagination");
     });
     options.AddPolicy(frontEndProductionPolicy, policy =>
     {
@@ -123,6 +128,12 @@ app.UseExceptionHandler();
 if (app.Environment.IsDevelopment())
 {
     app.UseCors(frontEndDevelopmentPolicy);
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+else if (app.Environment.IsStaging())
+{
+    app.UseCors(frontEndStagingPolicy);
     app.UseSwagger();
     app.UseSwaggerUI();
 }
